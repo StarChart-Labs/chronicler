@@ -1,0 +1,11 @@
+{
+	"com.google.code.findbugs:jsr305": { "locked": "3.0.1" },
+	
+	"org.slf4j:slf4j-api": { "locked": "1.7.21" },
+	"org.slf4j:slf4j-simple": { "locked": "1.7.12" },
+	
+	"org.springframework.boot:spring-boot-starter-actuator": { "locked": "1.5.3.RELEASE" },
+	"org.springframework.boot:spring-boot-starter-web": { "locked": "1.5.3.RELEASE" },
+
+	"org.testng:testng": { "locked": "6.9.10" },
+}
