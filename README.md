@@ -1,4 +1,4 @@
-# chronicler
+# Chronicler
 
 GitHub integration which validates release note/change log updates occur
 
