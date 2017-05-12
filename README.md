@@ -1,6 +1,6 @@
 # Chronicler
 
-[![Travis CI](https://img.shields.io/travis/Corona-IDE/chronicler.svg?branch=master)](https://travis-ci.org/Corona-IDE/chronicler)
+[![Travis CI](https://img.shields.io/travis/Corona-IDE/chronicler.svg?branch=master)](https://travis-ci.org/Corona-IDE/chronicler) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/groups/Corona-IDE/locations/chronicler/public/results/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/groups/Corona-IDE/locations/chronicler/public/results/branches/master)
 
 GitHub integration which validates release note/change log updates occur
 
