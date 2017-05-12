@@ -1,5 +1,7 @@
 # Chronicler
 
+[![Travis CI](https://img.shields.io/travis/Corona-IDE/chronicler.svg?branch=master)](https://travis-ci.org/Corona-IDE/chronicler)
+
 GitHub integration which validates release note/change log updates occur
 
 Features in progress:
