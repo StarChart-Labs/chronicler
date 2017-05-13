@@ -7,5 +7,5 @@
 	"org.springframework.boot:spring-boot-starter-actuator": { "locked": "1.5.3.RELEASE" },
 	"org.springframework.boot:spring-boot-starter-web": { "locked": "1.5.3.RELEASE" },
 
-	"org.testng:testng": { "locked": "6.9.10" },
+	"org.testng:testng": { "locked": "6.11" },
 }
