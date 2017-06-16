@@ -24,9 +24,9 @@ if (project.hasProperty('sonarLogin')) {
 
 sonarqube {
     properties {
-        property 'sonar.projectName', 'Lockdown'
-        property 'sonar.projectKey', 'com.coronaide:chronicler'
-        property 'sonar.organization', 'corona-ide'
+        property 'sonar.projectName', 'Chronicler'
+        property 'sonar.projectKey', 'org.starchartlabs.chronicler'
+        property 'sonar.organization', 'starchart-labs'
         property 'sonar.junit.reportsPath', file("${buildDir}/test-results/test")
         property 'sonar.core.codeCoveragePlugin', 'jacoco'
         property 'sonar.jacoco.reportPaths', "${buildDir}/jacoco/test.exec"
@@ -49,7 +49,7 @@ allprojects{
     }
 
     version = "${chroniclerVersion}"
-    group = 'com.coronaide.chronicler'
+    group = 'org.starchartlabs.chronicler'
 
     sourceCompatibility = "${javaVersion}"
 
@@ -122,7 +122,7 @@ subprojects{
 
     sonarqube {
         properties {
-            property 'sonar.projectKey', "com.coronaide:chronicler:${project.name}"
+            property 'sonar.projectKey', "${project.group}:${project.name}"
             property 'sonar.junit.reportsPath', file("${buildDir}/test-results/test")
             property 'sonar.core.codeCoveragePlugin', 'jacoco'
             property 'sonar.jacoco.reportPaths', "${buildDir}/jacoco/test.exec"
