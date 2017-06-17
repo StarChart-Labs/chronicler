@@ -8,15 +8,12 @@ buildscript {
     }
     dependencies {
         classpath group: 'com.netflix.nebula', name: 'nebula-dependency-recommender', version: '3.6.3'
-        classpath group: 'com.blackducksoftware.integration', name: 'hub-gradle-plugin', version: '4.0.0'
     }
 }
 
 plugins {
     id 'org.sonarqube' version '2.3'
 }
-
-apply plugin: 'com.blackducksoftware.hub'
 
 if (project.hasProperty('sonarLogin')) {
     System.setProperty('sonar.login', "${sonarLogin}")
@@ -32,10 +29,6 @@ sonarqube {
         property 'sonar.jacoco.reportPaths', "${buildDir}/jacoco/test.exec"
         property 'sonar.host.url', 'https://sonarqube.com'
     }
-}
-
-buildBom{
-	deployHubBdio false
 }
 
 allprojects{
