@@ -4,12 +4,15 @@ buildscript {
     }
     dependencies {
         classpath group: 'com.netflix.nebula', name: 'nebula-dependency-recommender', version: '3.6.3'
+        classpath group: 'org.starchartlabs.flare', name: 'flare-operations-plugins', version: '0.1.0'
     }
 }
 
 plugins {
     id 'org.sonarqube' version '2.3'
 }
+
+apply plugin: 'org.starchartlabs.flare.merge-coverage-reports'
 
 if (project.hasProperty('sonarLogin')) {
     System.setProperty('sonar.login', "${sonarLogin}")
@@ -117,26 +120,6 @@ subprojects{
             properties['sonar.sources'] = sourceSets.main.java.srcDirs.findAll { it.exists() && !it.path.contains('resources') } ?: []
         }
     }
-}
-
-//Create an aggregated jacoco report
-task codeCoverageReport(type: JacocoReport) {
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-
-    subprojects.each {
-        sourceSets it.sourceSets.main
-    }
-
-    reports {
-        xml.enabled true
-        xml.destination "${buildDir}/reports/jacoco/report.xml"
-        html.enabled false
-        csv.enabled false
-    }
-}
-
-codeCoverageReport.dependsOn {
-    subprojects*.test
 }
 
 task wrapper(type: Wrapper) {
