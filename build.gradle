@@ -38,7 +38,7 @@ allprojects{
     apply plugin: 'org.starchartlabs.flare.dependency-insight'
 
     dependencyRecommendations {
-        dependencyLock file: file("${rootDir}/dependencies.lock")
+        propertiesFile file: file("${rootDir}/dependencies.properties")
     }
 
     group = 'org.starchartlabs.chronicler'

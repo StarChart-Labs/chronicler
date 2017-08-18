@@ -8,7 +8,7 @@
  * Contributors:
  *    "romeara" - initial API and implementation and/or initial documentation
  */
-package com.coronaide.chronicler.main.app;
+package org.starchartlabs.chronicler.main.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
