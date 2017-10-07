@@ -1,6 +1,6 @@
 # Chronicler
 
-[![Travis CI](https://img.shields.io/travis/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.org/StarChart-Labs/chronicler) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/groups/StarChart-Labs/locations/chronicler/public/results/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/groups/StarChart-Labs/locations/chronicler/public/results/branches/master)
+[![Travis CI](https://img.shields.io/travis/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.org/StarChart-Labs/chronicler) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master)
 
 GitHub integration which validates release note/change log updates occur
 
