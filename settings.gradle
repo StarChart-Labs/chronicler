@@ -1,1 +1,2 @@
 include 'main.app'
+include 'integration.github'
