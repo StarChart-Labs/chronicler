@@ -4,7 +4,9 @@ dependencies {
 	compile group: 'commons-codec', name: 'commons-codec'
 	compile group: 'commons-io', name: 'commons-io'
 	compile group: 'io.jsonwebtoken', name: 'jjwt'
+	compile group: 'javax.servlet', name: 'javax.servlet-api'
 	compile group: 'org.bouncycastle', name: 'bcprov-jdk16'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+	compile group: 'org.slf4j', name: 'slf4j-api'
+	compile group: 'org.springframework', name: 'spring-context'
+	compile group: 'org.springframework', name: 'spring-web'
 }
