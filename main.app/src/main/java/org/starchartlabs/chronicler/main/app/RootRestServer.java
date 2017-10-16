@@ -29,15 +29,18 @@ public class RootRestServer {
 
     private final String installationUrl;
 
-    public RootRestServer(String installationUrl) {
+    private final String sourceUrl;
+
+    public RootRestServer(String installationUrl, String sourceUrl) {
         this.installationUrl = Objects.requireNonNull(installationUrl);
+        this.sourceUrl = Objects.requireNonNull(sourceUrl);
     }
 
     // TODO romeara doc, test, headers, media-type. Move root view to app service?
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, path = "/", produces = { "application/json" })
     public ResponseEntity<RootView> getRoot() {
-        RootView rootView = new RootView(installationUrl);
+        RootView rootView = new RootView(installationUrl, sourceUrl);
 
         return new ResponseEntity<>(rootView, HttpStatus.OK);
     }
