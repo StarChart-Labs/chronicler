@@ -28,17 +28,26 @@ public class RootView {
     @JsonProperty(value = "installationUrl", required = true)
     private final String installationUrl;
 
-    public RootView(String installationUrl) {
+    @JsonProperty(value = "sourceUrl", required = true)
+    private final String sourceUrl;
+
+    public RootView(String installationUrl, String sourceUrl) {
         this.installationUrl = Objects.requireNonNull(installationUrl);
+        this.sourceUrl = Objects.requireNonNull(sourceUrl);
     }
 
     public String getInstallationUrl() {
         return installationUrl;
     }
 
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(getInstallationUrl());
+        return Objects.hash(getInstallationUrl(),
+                getSourceUrl());
     }
 
     @Override
@@ -48,7 +57,8 @@ public class RootView {
         if (obj instanceof RootView) {
             RootView compare = (RootView) obj;
 
-            result = Objects.equals(compare.getInstallationUrl(), getInstallationUrl());
+            result = Objects.equals(compare.getInstallationUrl(), getInstallationUrl())
+                    && Objects.equals(compare.getSourceUrl(), getSourceUrl());
         }
 
         return result;
@@ -58,6 +68,7 @@ public class RootView {
     public String toString() {
         return MoreObjects.toStringHelper(getClass()).omitNullValues()
                 .add("installationUrl", getInstallationUrl())
+                .add("sourceUrl", getSourceUrl())
                 .toString();
     }
 }

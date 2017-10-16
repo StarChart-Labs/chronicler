@@ -23,8 +23,9 @@ import org.springframework.context.annotation.Configuration;
 public class MainAppServerConfiguration {
 
     @Bean
-    public RootRestServer rootRestServer(@Value("${github.app.installation.url}") String installationUrl) {
-        return new RootRestServer(installationUrl);
+    public RootRestServer rootRestServer(@Value("${url.github.app.installation}") String installationUrl,
+            @Value("${url.github.source}") String sourceUrl) {
+        return new RootRestServer(installationUrl, sourceUrl);
     }
 
 }
