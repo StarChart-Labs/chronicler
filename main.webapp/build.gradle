@@ -11,3 +11,7 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
 }
+
+bootRun {
+    sourceResources sourceSets.main
+}
