@@ -1,4 +1,14 @@
+@import url('https://fonts.googleapis.com/css?family=Work+Sans');
+
 body {
-	padding: 10px;
-	background-color: #eee;
+	font-family: 'Work Sans', sans-serif;
+	padding: 20px;
+	color: white;
+	background-color: black;
+	text-align: center;
+}
+
+#logo {
+	margin-top: 10px;
+	width: 500px;
 }
