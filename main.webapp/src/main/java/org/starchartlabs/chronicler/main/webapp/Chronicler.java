@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.starchartlabs.chronicler.main.app;
+package org.starchartlabs.chronicler.main.webapp;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
+import org.starchartlabs.chronicler.main.webapp.server.config.MainAppServerConfiguration;
 
-@Configuration
-public class MainAppServerConfiguration {
+// TODO romeara doc
+@SpringBootApplication
+@Import({ MainAppServerConfiguration.class })
+public class Chronicler {
 
-    @Bean
-    public RootRestServer rootRestServer(@Value("${url.github.app.installation}") String installationUrl,
-            @Value("${url.github.source}") String sourceUrl) {
-        return new RootRestServer(installationUrl, sourceUrl);
+    public static void main(String[] args) {
+        SpringApplication.run(Chronicler.class, args);
     }
 
 }

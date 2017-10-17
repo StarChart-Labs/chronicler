@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.starchartlabs.chronicler.main.app;
+package org.starchartlabs.chronicler.main.webapp.server.impl;
 
 import java.util.Objects;
 
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.starchartlabs.chronicler.main.webapp.app.model.RootView;
 
 @Controller
 public class RootRestServer {
