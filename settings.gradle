@@ -1,2 +1,2 @@
-include 'main.app'
+include 'main.webapp'
 include 'integration.github'
