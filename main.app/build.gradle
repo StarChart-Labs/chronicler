@@ -1,3 +1,5 @@
+apply plugin: 'org.springframework.boot'
+
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
 	compile group: 'com.google.guava', name: 'guava'
@@ -6,5 +8,6 @@ dependencies {
 	compile group: 'io.jsonwebtoken', name: 'jjwt'
 	compile group: 'org.bouncycastle', name: 'bcprov-jdk16'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
 }
