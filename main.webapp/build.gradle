@@ -1,4 +1,10 @@
-apply plugin: 'org.springframework.boot'
+
+plugins {
+    id 'us.kirchmeier.capsule' version '1.0.2'
+}
+
+apply plugin: 'application'
+mainClassName = 'org.starchartlabs.chronicler.main.webapp.Chronicler'
 
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
@@ -8,10 +14,19 @@ dependencies {
 	compile group: 'io.jsonwebtoken', name: 'jjwt'
 	compile group: 'org.bouncycastle', name: 'bcprov-jdk16'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
+    compile (group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf') {
+        exclude group: 'org.codehaus.groovy', module: 'groovy'
+    }
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
 }
 
-bootRun {
-    sourceResources sourceSets.main
+task distCapsule(type: FatCapsule) {
+    applicationClass 'org.starchartlabs.chronicler.main.webapp.Chronicler'
+    embedConfiguration configurations.runtime
+    archiveName 'chronicler-capsule.jar'
+    destinationDir file("${rootDir}/build/libs")
+}
+
+artifacts {
+    archives distCapsule
 }
