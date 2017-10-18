@@ -1,0 +1,1 @@
+web: java -Dserver.port=$PORT $JAVA_OPTS -jar main.webapp/build/libs/main.webapp-0.1.0-SNAPSHOT.jar

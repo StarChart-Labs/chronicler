@@ -17,7 +17,6 @@ plugins {
     id 'org.sonarqube' version '2.5'
 }
 
-apply plugin: 'org.springframework.boot'
 apply plugin: 'org.starchartlabs.flare.merge-coverage-reports'
 
 if (project.hasProperty('sonarLogin')) {
@@ -113,10 +112,6 @@ subprojects{
     }
 }
 
-bootJar {
-	mainClass = 'org.starchartlabs.chronicler.main.webapp.Chronicler'
-}
-
 // Stage task for Heroku deployment
-task stage(dependsOn: ['build', 'clean'])
+task stage(dependsOn: ['main.webapp:bootJar', 'build', 'clean'])
 build.mustRunAfter clean
