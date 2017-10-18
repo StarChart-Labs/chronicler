@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.starchartlabs.chronicler.integration.github;
+package org.starchartlabs.chronicler.integration.github.server.impl;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +30,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.starchartlabs.chronicler.integration.github.webhook.WebhookVerifier;
+import org.starchartlabs.chronicler.integration.github.Headers;
+import org.starchartlabs.chronicler.integration.github.RequestPaths;
+import org.starchartlabs.chronicler.integration.github.app.api.IGitHubWebhookAppService;
 
 // TODO romeara doc, test
 @Controller
@@ -39,10 +41,10 @@ public class GitHubWebhookRestServer {
     /** Logger reference to output information to the application log files */
     private static final Logger logger = LoggerFactory.getLogger(GitHubWebhookRestServer.class);
 
-    private final WebhookVerifier webhookVerifier;
+    private final IGitHubWebhookAppService gitHubWebhookAppService;
 
-    public GitHubWebhookRestServer(WebhookVerifier webhookVerifier) {
-        this.webhookVerifier = Objects.requireNonNull(webhookVerifier);
+    public GitHubWebhookRestServer(IGitHubWebhookAppService gitHubWebhookAppService) {
+        this.gitHubWebhookAppService = Objects.requireNonNull(gitHubWebhookAppService);
     }
 
     @RequestMapping(path = RequestPaths.WEBHOOK, method = RequestMethod.POST, consumes = "application/json")
@@ -55,13 +57,10 @@ public class GitHubWebhookRestServer {
         ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         String jsonBody = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 
-        boolean validPayload = webhookVerifier.isPayloadLegitimate(securityKey, jsonBody);
+        boolean validPayload = gitHubWebhookAppService.acceptPayload(securityKey, eventType, jsonBody);
 
         if (validPayload) {
             response = new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-            // TODO Auto-generated function stub
-            throw new UnsupportedOperationException("GitHubWebhookRestServer.receiveWebhook is not yet implemented");
         }
 
         return response;
