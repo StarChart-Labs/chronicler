@@ -105,5 +105,5 @@ subprojects{
 }
 
 // Stage task for Heroku deployment
-task stage(dependsOn: ['main.webapp:bootJar', 'build', 'clean'])
+task stage(dependsOn: ['main.webapp:bootRepackage', 'build', 'clean'])
 build.mustRunAfter clean
