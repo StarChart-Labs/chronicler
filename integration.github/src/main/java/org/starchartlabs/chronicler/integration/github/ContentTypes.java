@@ -16,25 +16,18 @@
 package org.starchartlabs.chronicler.integration.github;
 
 /**
- * Contains constants defining request and response paths for the web interface of the application
+ * Defines media/content types for use in sending and receiving web requests
  *
  * @author romeara
  * @since 0.1.0
  */
-public final class RequestPaths {
+public class ContentTypes {
 
     /**
-     * Path GitHub should POST subscribed events to
-     *
+     * Represents data presented in the JSON file format
+     * 
      * @since 0.1.0
      */
-    public static final String WEBHOOK = "/webhook";
-
-    /**
-     * Prevent instantiation of utility class
-     */
-    private RequestPaths() throws InstantiationException {
-        throw new InstantiationException("Cannot instantiate instance of utility class '" + getClass().getName() + "'");
-    }
+    public static final String JSON = "application/json";
 
 }
