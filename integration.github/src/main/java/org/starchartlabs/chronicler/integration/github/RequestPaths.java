@@ -15,9 +15,19 @@
  */
 package org.starchartlabs.chronicler.integration.github;
 
-// TODO romeara doc, test
+/**
+ * Contains constants defining request and response paths for the web interface of the application
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
 public final class RequestPaths {
 
+    /**
+     * Path GitHub should POST subscribed events to
+     *
+     * @since 0.1.0
+     */
     public static final String WEBHOOK = "/webhook";
 
     /**

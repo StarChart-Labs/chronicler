@@ -48,6 +48,17 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         return execution.execute(request, body);
     }
 
+    /**
+     * Adds additional headers to a request
+     * 
+     * @param request
+     *            The original request to add headers to
+     * @param header
+     *            The header to add values for
+     * @param values
+     *            Header values to apply using the specified header
+     * @return Request with added headers
+     */
     private HttpRequest addHeader(HttpRequest request, String header, Collection<String> values) {
         Objects.requireNonNull(request);
         Objects.requireNonNull(header);
