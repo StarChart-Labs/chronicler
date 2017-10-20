@@ -19,9 +19,9 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.starchartlabs.chronicler.integration.github.WebhookEvents;
-import org.starchartlabs.chronicler.integration.github.WebhookVerifier;
 import org.starchartlabs.chronicler.integration.github.app.api.IGitHubWebhookAppService;
+import org.starchartlabs.chronicler.integration.github.webhook.WebhookEvents;
+import org.starchartlabs.chronicler.integration.github.webhook.WebhookVerifier;
 
 //TODO romeara test
 /**
