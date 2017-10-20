@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.starchartlabs.chronicler.integration.github.WebhookEvents;
 import org.starchartlabs.chronicler.integration.github.WebhookVerifier;
 import org.starchartlabs.chronicler.integration.github.app.api.IGitHubWebhookAppService;
 
@@ -55,16 +56,19 @@ public class GitHubWebhookAppService implements IGitHubWebhookAppService {
         boolean validPayload = webhookVerifier.isPayloadLegitimate(securityKey, payload);
 
         if (validPayload) {
-            if (Objects.equals(eventType, "pull_request")) {
+            if (Objects.equals(eventType, WebhookEvents.PING)) {
+                // TODO romeara implement
+                logger.info("Received ping event");
+            } else if (Objects.equals(eventType, WebhookEvents.PULL_REQUEST)) {
                 // TODO romeara implement
                 logger.info("Received pull request event");
-            } else if (Objects.equals(eventType, "repository")) {
+            } else if (Objects.equals(eventType, WebhookEvents.REPOSITORY)) {
                 // TODO romeara implement
                 logger.info("Received repository event");
-            } else if (Objects.equals(eventType, "installation")) {
+            } else if (Objects.equals(eventType, WebhookEvents.INSTALLATION)) {
                 // TODO romeara implement
                 logger.info("Received installation event");
-            } else if (Objects.equals(eventType, "installation_repositories")) {
+            } else if (Objects.equals(eventType, WebhookEvents.INSTALLATION_REPOSITORIES)) {
                 // TODO romeara implement
                 logger.info("Received installation_repositories event");
             } else {
