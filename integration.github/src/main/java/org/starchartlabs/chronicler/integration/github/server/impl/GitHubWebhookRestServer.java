@@ -31,9 +31,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.starchartlabs.chronicler.integration.github.ContentTypes;
-import org.starchartlabs.chronicler.integration.github.Headers;
 import org.starchartlabs.chronicler.integration.github.RequestPaths;
 import org.starchartlabs.chronicler.integration.github.app.api.IGitHubWebhookAppService;
+import org.starchartlabs.chronicler.integration.github.webhook.WebhookHeaders;
 
 // TODO romeara test
 /**
@@ -80,9 +80,9 @@ public class GitHubWebhookRestServer {
      * @since 0.1.0
      */
     @RequestMapping(path = RequestPaths.WEBHOOK, method = RequestMethod.POST, consumes = ContentTypes.JSON)
-    public ResponseEntity<Void> receiveWebhook(@RequestHeader(Headers.WEBHOOK_EVENT_TYPE) String eventType,
-            @RequestHeader(Headers.WEBHOOK_EVENT_ID) String gitHubId,
-            @RequestHeader(Headers.WEBHOOK_SECURITY) String securityKey,
+    public ResponseEntity<Void> receiveWebhook(@RequestHeader(WebhookHeaders.WEBHOOK_EVENT_TYPE) String eventType,
+            @RequestHeader(WebhookHeaders.WEBHOOK_EVENT_ID) String gitHubId,
+            @RequestHeader(WebhookHeaders.WEBHOOK_SECURITY) String securityKey,
             HttpServletRequest request) throws IOException {
         logger.debug("Received GitHub Event: {}:{}", gitHubId, eventType);
 
