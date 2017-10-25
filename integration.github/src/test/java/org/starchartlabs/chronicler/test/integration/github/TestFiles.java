@@ -27,4 +27,6 @@ public class TestFiles {
 
     public static final Path PULL_REQUEST_META_DATA = RESOURCES_PATH.resolve("pullRequestMetaData.json");
 
+    public static final Path PING_EVENT = RESOURCES_PATH.resolve("pingEvent.json");
+
 }
