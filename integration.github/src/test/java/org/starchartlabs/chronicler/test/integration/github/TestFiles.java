@@ -29,4 +29,10 @@ public class TestFiles {
 
     public static final Path PING_EVENT = RESOURCES_PATH.resolve("pingEvent.json");
 
+    public static final Path INSTALLATION_EVENT = RESOURCES_PATH.resolve("installationEvent.json");
+
+    public static final Path INSTALLATION_META_DATA = RESOURCES_PATH.resolve("installationMetaData.json");
+
+    public static final Path OWNER_META_DATA = RESOURCES_PATH.resolve("ownerMetaData.json");
+
 }
