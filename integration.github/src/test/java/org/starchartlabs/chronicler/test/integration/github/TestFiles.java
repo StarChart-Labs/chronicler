@@ -35,4 +35,8 @@ public class TestFiles {
 
     public static final Path OWNER_META_DATA = RESOURCES_PATH.resolve("ownerMetaData.json");
 
+    public static final Path REPOSITORY_EVENT = RESOURCES_PATH.resolve("repositoryEvent.json");
+
+    public static final Path REPOSITORY_META_DATA = RESOURCES_PATH.resolve("repositoryMetaData.json");
+
 }
