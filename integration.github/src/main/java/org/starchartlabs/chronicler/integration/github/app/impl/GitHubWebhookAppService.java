@@ -15,13 +15,18 @@
  */
 package org.starchartlabs.chronicler.integration.github.app.impl;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.chronicler.integration.github.app.api.IGitHubWebhookAppService;
+import org.starchartlabs.chronicler.integration.github.app.model.InstallationEvent;
+import org.starchartlabs.chronicler.integration.github.app.model.PingEvent;
 import org.starchartlabs.chronicler.integration.github.webhook.WebhookEvents;
 import org.starchartlabs.chronicler.integration.github.webhook.WebhookVerifier;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 //TODO romeara test
 /**
@@ -52,13 +57,17 @@ public class GitHubWebhookAppService implements IGitHubWebhookAppService {
     }
 
     @Override
-    public boolean acceptPayload(String securityKey, String eventType, String payload) {
+    public boolean acceptPayload(String securityKey, String eventType, String payload) throws IOException {
         boolean validPayload = webhookVerifier.isPayloadLegitimate(securityKey, payload);
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper = mapper.findAndRegisterModules();
 
         if (validPayload) {
             if (Objects.equals(eventType, WebhookEvents.PING)) {
-                // TODO romeara implement
-                logger.info("Received ping event");
+                PingEvent event = mapper.readValue(payload, PingEvent.class);
+
+                logger.info("Received ping event. GitHub imparts wisdom: {}", event.getZen());
             } else if (Objects.equals(eventType, WebhookEvents.PULL_REQUEST)) {
                 // TODO romeara implement
                 logger.info("Received pull request event");
@@ -66,8 +75,10 @@ public class GitHubWebhookAppService implements IGitHubWebhookAppService {
                 // TODO romeara implement
                 logger.info("Received repository event");
             } else if (Objects.equals(eventType, WebhookEvents.INSTALLATION)) {
-                // TODO romeara implement
-                logger.info("Received installation event");
+                InstallationEvent event = mapper.readValue(payload, InstallationEvent.class);
+
+                logger.info("Received installation event ({}:{})", event.getAction(),
+                        event.getInstallation().getAccount().getLogin());
             } else if (Objects.equals(eventType, WebhookEvents.INSTALLATION_REPOSITORIES)) {
                 // TODO romeara implement
                 logger.info("Received installation_repositories event");

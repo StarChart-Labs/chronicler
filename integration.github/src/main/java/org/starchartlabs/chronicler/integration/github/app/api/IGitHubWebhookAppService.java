@@ -15,6 +15,8 @@
  */
 package org.starchartlabs.chronicler.integration.github.app.api;
 
+import java.io.IOException;
+
 /**
  * Represents handling of GitHub webhook operations available to REST endpoints
  *
@@ -34,8 +36,10 @@ public interface IGitHubWebhookAppService {
      *            The JSON data provided by the webhook event
      * @return True if the payload was recognized and dispatched, false if security verification failed and event was
      *         ignored
+     * @throws IOException
+     *             If there is an error parsing the JSON payload
      * @since 0.1.0
      */
-    boolean acceptPayload(String securityKey, String eventType, String payload);
+    boolean acceptPayload(String securityKey, String eventType, String payload) throws IOException;
 
 }
