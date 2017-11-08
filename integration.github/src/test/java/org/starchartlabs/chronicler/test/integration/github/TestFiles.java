@@ -39,4 +39,9 @@ public class TestFiles {
 
     public static final Path REPOSITORY_META_DATA = RESOURCES_PATH.resolve("repositoryMetaData.json");
 
+    public static final Path INSTALLATION_REPOSITORIES_EVENT = RESOURCES_PATH
+            .resolve("installationRepositoriesEvent.json");
+
+    public static final Path TARGET_REPOSITORY_META_DATA = RESOURCES_PATH.resolve("targetRepositoryMetaData.json");
+
 }
