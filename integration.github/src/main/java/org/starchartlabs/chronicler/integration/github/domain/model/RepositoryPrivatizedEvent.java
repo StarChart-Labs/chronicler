@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.MoreObjects;
 
-//TODO romeara test
 /**
  * Indicates that a GitHub repository has been moved from the "public" to "private" state
  *
