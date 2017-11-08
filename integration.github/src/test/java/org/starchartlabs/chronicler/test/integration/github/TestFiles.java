@@ -18,7 +18,12 @@ package org.starchartlabs.chronicler.test.integration.github;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-//TODO romeara doc
+/**
+ * Paths to test resources for GitHub requests and responses
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
 public class TestFiles {
 
     private static final Path RESOURCES_PATH = Paths.get("org", "starchartlabs", "chronicler", "integration", "github");
