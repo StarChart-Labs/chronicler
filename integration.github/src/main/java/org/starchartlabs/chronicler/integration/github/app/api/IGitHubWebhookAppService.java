@@ -17,6 +17,8 @@ package org.starchartlabs.chronicler.integration.github.app.api;
 
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents handling of GitHub webhook operations available to REST endpoints
  *
@@ -40,6 +42,6 @@ public interface IGitHubWebhookAppService {
      *             If there is an error parsing the JSON payload
      * @since 0.1.0
      */
-    boolean acceptPayload(String securityKey, String eventType, String payload) throws IOException;
+    boolean acceptPayload(@Nullable String securityKey, String eventType, String payload) throws IOException;
 
 }

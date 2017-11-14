@@ -38,7 +38,6 @@ import org.starchartlabs.chronicler.integration.github.webhook.WebhookVerifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 
-//TODO romeara test
 /**
  * Implementation of {@link IGitHubWebhookAppService} which dispatches internal application events based on webhook data
  * provided by GitHub
@@ -81,6 +80,9 @@ public class GitHubWebhookAppService implements IGitHubWebhookAppService {
 
     @Override
     public boolean acceptPayload(String securityKey, String eventType, String payload) throws IOException {
+        Objects.requireNonNull(eventType);
+        Objects.requireNonNull(payload);
+
         boolean validPayload = webhookVerifier.isPayloadLegitimate(securityKey, payload);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -112,7 +114,7 @@ public class GitHubWebhookAppService implements IGitHubWebhookAppService {
             } else if (Objects.equals(eventType, WebhookEvents.REPOSITORY)) {
                 RepositoryEvent event = mapper.readValue(payload, RepositoryEvent.class);
 
-                if (Objects.equals("", event.getAction())) {
+                if (Objects.equals("privatized", event.getAction())) {
                     RepositoryPrivatizedEvent applicationEvent = new RepositoryPrivatizedEvent(
                             event.getRepository().getId(),
                             event.getRepository().getOwner().getLogin(),
@@ -129,8 +131,8 @@ public class GitHubWebhookAppService implements IGitHubWebhookAppService {
             } else if (Objects.equals(eventType, WebhookEvents.INSTALLATION)) {
                 InstallationEvent event = mapper.readValue(payload, InstallationEvent.class);
 
-                logger.info("Received installation event ({}:{})", event.getAction(),
-                        event.getInstallation().getAccount().getLogin());
+                logger.info("Received installation event ({}:{})", event.getInstallation().getAccount().getLogin(),
+                        event.getAction());
             } else if (Objects.equals(eventType, WebhookEvents.INSTALLATION_REPOSITORIES)) {
                 InstallationRepositoriesEvent event = mapper.readValue(payload, InstallationRepositoriesEvent.class);
 
@@ -143,7 +145,7 @@ public class GitHubWebhookAppService implements IGitHubWebhookAppService {
                         .collect(Collectors.joining(", "));
 
                 logger.info("Received installation_repositories event ((): {}), (Added: {}), (Removed: {})",
-                        event.getAction(), event.getInstallation().getAccount().getLogin(), added, removed);
+                        event.getInstallation().getAccount().getLogin(), event.getAction(), added, removed);
             } else {
                 logger.warn("Unrecognized event type {}", eventType);
             }

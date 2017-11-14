@@ -10,5 +10,8 @@ dependencies {
 	compile group: 'org.springframework', name: 'spring-context'
 	compile group: 'org.springframework', name: 'spring-web'
     
+    testCompile group: 'com.google.code.gson', name: 'gson'
     testCompile group: 'org.testng', name: 'testng'
+    testCompile group: 'org.mockito', name: 'mockito-core'
+    testCompile group: 'uk.org.lidalia', name: 'slf4j-test'
 }
