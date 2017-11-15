@@ -1,28 +1,35 @@
 # Contributing
 
-Chronicler is currently in pre-alpha development - basic functionality is still being implemented.
+We welcome any contributions! If you wish to contribute:
 
-## Basic Requirements
-
-Pull requests should include:
-
-- Minimum side-effect changes
-- Documented methods, classes, etc
-- Tests (where possible)
-- Changelog entries
-
-## Libraries Used
-
-Chronicler is currently written against Java 1.8. Testing use the TestNG framework, and the mock testing library of choice is mockito
+- Fork the `chronicler` repository
+- Clone your fork to your development machine
+- Run `./gradlew clean build` to confirm you are starting from a working Setup
+ - Please report any issues with this build step in the GitHub project's issues
+- Create a branch for your work
+- Setup your deveopment environment (see below)
+- Make changes
+- Run `./gradlew clean build` to test your changes locally
+- Push your branch to your Fork
+- Make a Pull Request against the `master` branch
 
 ## Development Environment Setup
 
-It is recommended to create an isolated Eclipse workspace for Chronicler. You should also import the standard formatting and save settings from eclipseConfiguration:
+Currently, Eclipse is the supported IDE for development of Chronicler. It is recommended to create an isolated workspace for StarChart Labs projects. You should also import the standard StarChart Labs formatting and save settings from the [eclipse-configuration repository](https://github.com/StarChart-Labs/eclipse-configuration)
 
-- `Java > CodeStyle > Cleanup` is imported from cleanup.xml
-- `Java > CodeStyle > Formatter` is imported from codeformatter.xml
-- `Java > CodeStyle > Code Templates` is imported from codetemplates.xml
+## General Standards
 
-It is also recommended to turn on "save actions", under the Java Editor settings, to format saved lines and perform other cleanup operations
+In general, pull requests should:
+- Be small and focused on a single improvement/bug
+- Include tests for changed behavior/new features
+- Match the formatting of the existing code
+- Have documentation for added methods/classes and appropriate in-line comments
+- Have additions to the CHANGE_LOG.md file recording changed behavior
 
-Once settings are configured, use the Eclipse BuildShip plug-in to import all projects from the root of the repository
+## Running Locally
+
+If you wish to run the application yourself, you will have to setup a GitHub App. 
+
+First, you will need a location for webhook events to be sent. Currently, the best solution we've found for this is [RequestBin](https://requestb.in). Note that it expires every 48 hours.
+
+Next, create an App called "Chronicler (Development Testing)" that can only be installed on your account, matching the settings described in [GitHub App Settings](./doc/github-app-settings.md), with a webhook secret of "chronicler" (the secret matches one encrypted in test files). Finally, run `./gradlew run` locally. Repositories you install your test GitHub App on will send requests to RequestBin, which you can then take and send on to you local server via a tool such as Postman.

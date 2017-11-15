@@ -2,16 +2,26 @@
 
 [![Travis CI](https://img.shields.io/travis/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.org/StarChart-Labs/chronicler) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master)
 
-GitHub integration which validates release note/change log updates occur
+GitHub integration which validates whether release notes are updated when production code is changed
 
-Features in progress:
+## Contributing
 
-- Specify groups of files which correspond to a release note file which should be updated when they change (including ability to exclude files patterns from that group)
-- Specify if the check MUST pass (required) for a PR to be merged (Travis is "required", CodeCov is not)
-- Allowing collaborators (push access) to override status check failure with a comment mentioning the integration
+Information for how to contribute to Chronicler can be found in [the contribution guidelines](./CONTRIBUTING.md)
 
 ## Legal
 
-Chronicler is distributed under the [MIT License](https://opensource.org/licenses/MIT). There are no requirements for using it in your own project (a line in a NOTICES file is appreciated but not necessary for use)
+Chronicler is distributed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). The only requirement for use in inclusion of the following line within your NOTICES file:
+
+```
+StarChart-Labs Chronicler Web Application
+Copyright 2017 StarChart Labs Authors.
+
+This product includes software developed at
+StarChart Labs (http://www.starchartlabs.org/).
+```
 
 The requirement for a copy of the license being included in distributions is fulfilled by a copy of the [LICENSE](./LICENSE) file being included in constructed JAR archives
+
+## Reporting Vulnerabilities
+
+If you discover a security vulnerability, contact the development team by e-mail at corona.ide.dev@gmail.com
