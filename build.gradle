@@ -1,10 +1,12 @@
 buildscript {
     repositories {
         maven { url 'https://plugins.gradle.org/m2/' }
+        jcenter()
     }
     dependencies {
         classpath group: 'com.netflix.nebula', name: 'nebula-dependency-recommender', version: '3.6.3'
         classpath group: 'org.starchartlabs.flare', name: 'flare-operations-plugins', version: '0.1.0'
+        classpath group: 'org.starchartlabs.lockdown', name: 'lockdown-gradle-plugin', version: '2.0.0'
     }
 }
 
