@@ -1,10 +1,16 @@
-
 plugins {
     id 'us.kirchmeier.capsule' version '1.0.2'
 }
 
 apply plugin: 'application'
 mainClassName = 'org.starchartlabs.chronicler.main.webapp.Chronicler'
+
+def testResourcesDir="${projectDir}/src/test/resources/org/starchartlabs/chronicler/main/webapp"
+
+run {
+    args "-Dorg.starchartlabs.chronicler.credentials=${testResourcesDir}/credentials.properties"
+    args "-Dorg.starchartlabs.chronicler.credentials.key=${testResourcesDir}/test_rsa"
+}
 
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
@@ -26,6 +32,11 @@ task distCapsule(type: FatCapsule) {
     embedConfiguration configurations.runtime
     archiveName 'chronicler-capsule.jar'
     destinationDir file("${rootDir}/build/libs")
+}
+
+task addTestCredentials(type: org.starchartlabs.lockdown.gradle.task.AddCredentialsTask){
+    publicKey "${testResourcesDir}/test_rsa.pub"
+    credentialFile "${testResourcesDir}/credentials.properties"
 }
 
 artifacts {
