@@ -22,7 +22,14 @@ import javax.annotation.Nullable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-// TODO romeara doc, test, add meta-data view
+// TODO romeara test
+/**
+ * Representation of URLs central to the web application's operation. Functions as the entry point for any link-based
+ * navigation of the application's REST APIs
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
 public class RootView {
 
     @JsonProperty(value = "installationUrl", required = true)
@@ -31,15 +38,30 @@ public class RootView {
     @JsonProperty(value = "sourceUrl", required = true)
     private final String sourceUrl;
 
+    /**
+     * @param installationUrl
+     *            GitHub URL which user's may navigate to in order to install the application on their repositories
+     * @param sourceUrl
+     *            URL where the source code for the application is stored
+     * @since 0.1.0
+     */
     public RootView(String installationUrl, String sourceUrl) {
         this.installationUrl = Objects.requireNonNull(installationUrl);
         this.sourceUrl = Objects.requireNonNull(sourceUrl);
     }
 
+    /**
+     * @return GitHub URL which user's may navigate to in order to install the application on their repositories
+     * @since 0.1.0
+     */
     public String getInstallationUrl() {
         return installationUrl;
     }
 
+    /**
+     * @return URL where the source code for the application is stored
+     * @since 0.1.0
+     */
     public String getSourceUrl() {
         return sourceUrl;
     }

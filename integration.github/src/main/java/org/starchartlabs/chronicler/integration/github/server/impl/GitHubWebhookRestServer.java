@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.starchartlabs.chronicler.integration.github.ContentTypes;
 import org.starchartlabs.chronicler.integration.github.RequestPaths;
 import org.starchartlabs.chronicler.integration.github.app.api.IGitHubWebhookAppService;
-import org.starchartlabs.chronicler.integration.github.webhook.WebhookHeaders;
 
 // TODO romeara test
 /**

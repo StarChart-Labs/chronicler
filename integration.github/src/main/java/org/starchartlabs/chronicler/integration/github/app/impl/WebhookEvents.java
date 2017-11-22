@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.starchartlabs.chronicler.integration.github.webhook;
+package org.starchartlabs.chronicler.integration.github.app.impl;
 
 /**
  * Represents header keys used to identify different types of GitHub webhook events

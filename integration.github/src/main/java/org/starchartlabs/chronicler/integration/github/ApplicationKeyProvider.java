@@ -92,7 +92,6 @@ public class ApplicationKeyProvider implements Supplier<HttpHeaders> {
     }
 
     private String generateNewPayload() throws IOException {
-        // TODO romeara allow this to handle classpath or regular file locations
         try (PEMReader r = new PEMReader(new InputStreamReader(new ClassPathResource(gitHubPrivateKeyPath).getInputStream()))) {
             KeyPair keyPair = (KeyPair) r.readObject();
             Key key = keyPair.getPrivate();

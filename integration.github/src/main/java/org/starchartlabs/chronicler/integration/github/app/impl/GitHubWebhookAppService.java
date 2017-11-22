@@ -32,8 +32,6 @@ import org.starchartlabs.chronicler.integration.github.app.model.RepositoryEvent
 import org.starchartlabs.chronicler.integration.github.app.model.TargetRepositoryMetaData;
 import org.starchartlabs.chronicler.integration.github.domain.model.PullRequestAlteredEvent;
 import org.starchartlabs.chronicler.integration.github.domain.model.RepositoryPrivatizedEvent;
-import org.starchartlabs.chronicler.integration.github.webhook.WebhookEvents;
-import org.starchartlabs.chronicler.integration.github.webhook.WebhookVerifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
