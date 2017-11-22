@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-//TODO romeara Move to production code for re-use, generalize
 public final class ClasspathFileReader extends BufferedReader {
 
     private ClasspathFileReader(InputStreamReader inputStream) {

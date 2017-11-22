@@ -18,11 +18,23 @@ package org.starchartlabs.chronicler.main.webapp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
+import org.starchartlabs.chronicler.integration.github.app.config.GitHubIntegrationAppConfiguration;
+import org.starchartlabs.chronicler.integration.github.domain.config.GitHubIntegrationDomainConfiguration;
+import org.starchartlabs.chronicler.integration.github.server.config.GitHubIntegrationServerConfiguration;
 import org.starchartlabs.chronicler.main.webapp.server.config.MainAppServerConfiguration;
 
-// TODO romeara doc
+/**
+ * Entry point for the application. Utilizes the Spring Boot framework to run as a web application, setup dependency
+ * injection, and perform other boilerplate tasks
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
 @SpringBootApplication
-@Import({ MainAppServerConfiguration.class })
+@Import({ MainAppServerConfiguration.class,
+    GitHubIntegrationServerConfiguration.class,
+    GitHubIntegrationAppConfiguration.class,
+    GitHubIntegrationDomainConfiguration.class })
 public class Chronicler {
 
     public static void main(String[] args) {

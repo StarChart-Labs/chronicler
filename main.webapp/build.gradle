@@ -8,12 +8,14 @@ mainClassName = 'org.starchartlabs.chronicler.main.webapp.Chronicler'
 def testResourcesDir="${projectDir}/src/test/resources/org/starchartlabs/chronicler/main/webapp"
 
 run {
-    args "-Dorg.starchartlabs.chronicler.credentials=${testResourcesDir}/credentials.properties"
-    args "-Dorg.starchartlabs.chronicler.credentials.key=${testResourcesDir}/test_rsa"
+    args "--org.starchartlabs.lockdown.credentials=${testResourcesDir}/credentials.properties"
+    args "--org.starchartlabs.lockdown.credentials.key=${testResourcesDir}/test_rsa"
 }
 
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
+    compile project(':integration.github')
+    
 	compile group: 'com.google.guava', name: 'guava'
 	compile group: 'commons-codec', name: 'commons-codec'
 	compile group: 'commons-io', name: 'commons-io'

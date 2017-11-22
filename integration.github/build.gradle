@@ -6,6 +6,7 @@ dependencies {
 	compile group: 'io.jsonwebtoken', name: 'jjwt'
 	compile group: 'javax.servlet', name: 'javax.servlet-api'
 	compile group: 'org.bouncycastle', name: 'bcprov-jdk16'
+    compile group: 'org.starchartlabs.lockdown', name: 'lockdown-core'
 	compile group: 'org.slf4j', name: 'slf4j-api'
 	compile group: 'org.springframework', name: 'spring-context'
 	compile group: 'org.springframework', name: 'spring-web'

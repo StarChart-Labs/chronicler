@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 /**
- * Contains operations relevant to interactions with GitHub webhooks
+ * Contains definitions for the domain service layer which performs GitHub-related operations
  *
  * @author romeara
  * @since 0.1.0
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package org.starchartlabs.chronicler.integration.github.webhook;
+package org.starchartlabs.chronicler.integration.github.domain.api;
