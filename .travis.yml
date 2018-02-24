@@ -9,6 +9,6 @@ after_success:
 notifications:
   email:
     recipients:
-      - corona.ide.dev@gmail.com
+      - builds@starchartlabs.org
     on_success: change
     on_failure: always
