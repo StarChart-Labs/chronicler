@@ -1,5 +1,21 @@
 API Gateway is handled via... a lot of mapping and regex
 
+First, got a lambda working with the basic tutorials:
+
+- https://www.baeldung.com/java-aws-lambda
+- https://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
+
+Then, tried to hook it up to an HTTP request. Had to figure out how to setup an API trigger.
+
+Next, wanted to narrow to POST, so started looking into how API Gateways work
+
+- Defining an API
+- API Resources (paths)
+- API Methods (GET< POST)
+- API Deployments (test, prod)
+
+Next, wanted the raw JSON body, and the headers, so looked into request mapping templates
+
 - [Passing Headers](https://aws.amazon.com/premiumsupport/knowledge-center/custom-headers-api-gateway-lambda/)
 - [AWS Request Mapper Reference](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html)
 
