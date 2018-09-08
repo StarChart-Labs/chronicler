@@ -1,0 +1,16 @@
+//Dependency versions managed in $rootDir/dependencies.properties
+dependencies {
+    compile 'com.amazonaws:aws-lambda-java-core'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    
+    into('lib') {
+        from configurations.compileClasspath
+    }
+}
+
+build.dependsOn buildZip

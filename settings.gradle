@@ -1,2 +1,4 @@
 include 'main.webapp'
 include 'integration.github'
+
+include 'aws-webhook-event-processor'
