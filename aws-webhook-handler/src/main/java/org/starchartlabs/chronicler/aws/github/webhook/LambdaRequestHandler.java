@@ -32,10 +32,22 @@ public class LambdaRequestHandler implements RequestHandler<Map<String, Object>,
 
     @Override
     public String handleRequest(Map<String, Object> input, Context context) {
+        WebhookVerifier verifier = new WebhookVerifier(this::getWebhookSecret);
+
         Map<String, Collection<String>> headers = getHeaders(input);
         String jsonRequest = input.get("body-raw-json").toString();
 
-        return "Headers: " + headers + ", JSON Request: " + jsonRequest;
+        // TODO Verify conditions of header
+        String securityKey = headers.get("X-Hub-Signature").stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No webhook verification header"));
+
+        boolean result = verifier.isPayloadLegitimate(securityKey, jsonRequest);
+
+        String output = "Verification: " + result + ", Headers: " + headers + ", JSON Request: " + jsonRequest;
+
+        context.getLogger().log(output);
+
+        return output;
     }
 
     private Map<String, Collection<String>> getHeaders(Map<String, Object> input) {
@@ -57,6 +69,10 @@ public class LambdaRequestHandler implements RequestHandler<Map<String, Object>,
         }
 
         return result;
+    }
+
+    private String getWebhookSecret() {
+        return Objects.requireNonNull(System.getenv("GITHUB_WEBHOOK_SECRET"));
     }
 
 }
