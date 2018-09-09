@@ -1,7 +1,8 @@
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
     compile 'com.amazonaws:aws-lambda-java-core'
-    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.google.code.findbugs:jsr305'
+    compile 'commons-codec:commons-codec'
 }
 
 task buildZip(type: Zip) {
