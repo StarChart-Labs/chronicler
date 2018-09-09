@@ -68,3 +68,20 @@ POST Request Template:
 }
 
 ```
+
+
+Next, reduce POST request template:
+
+```
+##  See http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html
+##  Pulls unparsed JSON into a property, as well as the request headers
+{
+    "body-raw-json" : "$util.escapeJavaScript($input.body).replaceAll("\\'", "'")",
+    "headers": {
+        #foreach($param in $input.params().header.keySet())
+            "$param": "$util.escapeJavaScript($input.params().header.get($param))"
+            #if($foreach.hasNext),#end
+        #end
+    }
+}
+```
