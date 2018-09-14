@@ -1,0 +1,33 @@
+//Dependency versions managed in $rootDir/dependencies.properties
+dependencies {
+    compile project(':machete')
+    
+    compile 'com.amazonaws:aws-lambda-java-core'
+    compile 'com.google.code.findbugs:jsr305'
+    compile 'org.slf4j:slf4j-api'
+    
+    runtime 'com.amazonaws:aws-lambda-java-log4j2'
+    runtime 'org.apache.logging.log4j:log4j-core'
+    runtime 'org.apache.logging.log4j:log4j-slf4j-impl'
+}
+
+// Task for building the zip file for upload
+task buildZip(type: Zip) {
+    // Using the Zip API from gradle to build a zip file of all the dependencies
+    //
+    // The path to this zip file can be set in the serverless.yml file for the
+    // package/artifact setting for deployment to the S3 bucket
+    //
+    // Link: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Zip.html
+
+    // set the base name of the zip file
+   // baseName = "hello"
+    archiveName 'hello.zip'
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+build.dependsOn buildZip

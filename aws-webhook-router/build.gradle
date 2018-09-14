@@ -1,9 +1,9 @@
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
     compile 'com.amazonaws:aws-lambda-java-core'
-    compile 'com.amazonaws:aws-java-sdk-sns'
-    compile 'com.google.code.findbugs:jsr305'
-    compile 'commons-codec:commons-codec'
+    compile 'com.amazonaws:aws-lambda-java-events'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.google.code.gson:gson'
 }
 
 task buildZip(type: Zip) {
