@@ -1,0 +1,8 @@
+//Dependency versions managed in $rootDir/dependencies.properties
+dependencies {
+    compile 'com.fasterxml.jackson.core:jackson-annotations'
+    compile 'com.fasterxml.jackson.core:jackson-core'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.google.code.findbugs:jsr305'
+    compile 'org.slf4j:slf4j-api'
+}

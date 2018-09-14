@@ -2,3 +2,8 @@ include 'main.webapp'
 include 'integration.github'
 
 include 'aws-webhook-handler'
+include 'aws-webhook-router'
+
+include 'webhook-handler'
+include 'calamari-core'
+include 'machete'

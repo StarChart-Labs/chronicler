@@ -1,0 +1,5 @@
+//Dependency versions managed in $rootDir/dependencies.properties
+dependencies {
+    compile 'com.google.code.findbugs:jsr305'
+    compile 'commons-codec:commons-codec'
+}
