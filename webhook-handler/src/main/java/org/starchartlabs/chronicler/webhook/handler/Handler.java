@@ -10,26 +10,39 @@
  */
 package org.starchartlabs.chronicler.webhook.handler;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.starchartlabs.chronicler.machete.ApiGatewayResponse;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Handler implements RequestHandler<Map<String, Object>, ApiGatewayResponse> {
+public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Handler.class);
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Override
-    public ApiGatewayResponse handleRequest(Map<String, Object> input, Context context) {
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
         LOG.info("received: " + input);
 
-        return ApiGatewayResponse.builder()
-                .setStatusCode(204)
-                .build();
+        return new APIGatewayProxyResponseEvent()
+                .withStatusCode(200)
+                .withBody(toJsonBody(input));
+    }
+
+    private String toJsonBody(Object obj) {
+        try {
+            // Use "writer()" for thread safety - ObjectWriter is guaranteed thread-safe, object mapper is not
+            return OBJECT_MAPPER.writer().writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            LOG.error("failed to serialize object", e);
+            throw new RuntimeException(e);
+        }
     }
 
 }
