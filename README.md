@@ -25,3 +25,9 @@ The requirement for a copy of the license being included in distributions is ful
 ## Reporting Vulnerabilities
 
 If you discover a security vulnerability, contact the development team by e-mail at corona.ide.dev@gmail.com
+
+## Serverless Conversion Notes
+
+### Not Yet Automated
+
+- Deployment/Reotation of GitHub credentials used by functions
