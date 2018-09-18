@@ -24,12 +24,17 @@ import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
 
 public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private static final String GITHUB_HASH_HEADER = "X-Hub-Signature";
 
     private static final String PARAMETER_STORE_SECRET_KEY = "GITHUB_WEBHOOK_SECRET_SSM";
+
+    private static final String SNS_TOPIC_ARN = "SNS_TOPIC_ARN";
 
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,7 +43,6 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     // Provided for instantiation by AWS Lambda
     public Handler() {
-        // TODO actual token lookup
         this(new WebhookVerifier(() -> getKey()));
     }
 
@@ -59,9 +63,21 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         if (verified) {
             result = new APIGatewayProxyResponseEvent()
                     .withStatusCode(204);
+
+            // TODO Send actual data
+            AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
+
+            PublishRequest publishReq = new PublishRequest()
+                    .withTopicArn(getTopicArn())
+                    .withMessage("Hello SNS!");
+            snsClient.publish(publishReq);
         }
 
         return result;
+    }
+
+    private String getTopicArn() {
+        return Objects.requireNonNull(System.getenv(SNS_TOPIC_ARN));
     }
 
     private static String getParameterStoreSecretKey() {
