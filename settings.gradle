@@ -5,4 +5,5 @@ include 'aws-webhook-handler'
 include 'aws-webhook-router'
 
 include 'webhook-handler'
+include 'diff-analyzer'
 include 'calamari-core'

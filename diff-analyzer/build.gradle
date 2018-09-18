@@ -2,7 +2,6 @@
 dependencies {
     compile project(':calamari-core')
     
-    compile 'com.amazonaws:aws-java-sdk-sns'
     compile 'com.amazonaws:aws-java-sdk-ssm'
     compile 'com.amazonaws:aws-lambda-java-core'
     compile 'com.amazonaws:aws-lambda-java-events'

@@ -28,6 +28,23 @@ If you discover a security vulnerability, contact the development team by e-mail
 
 ## Serverless Conversion Notes
 
+- Should I figure out how to use cloud formation to create serverless group/users that can be limited based both on stage and on service? "policies"?
+  - Allow setup per stage of user, automate integration as profile into serverless environment (still requires user with at least create user/policy setup)
+
 ### Not Yet Automated
 
-- Deployment/Reotation of GitHub credentials used by functions
+- Deployment/Rotation of GitHub credentials used by functions?
+
+### TODO
+
+- Further narrow serverless user permissions, different users for dev, valid (cd) and production
+
+### Gradle integration
+
+- Serverless should trigger build prior to deploy
+- Gradle build should perhaps create a yaml that serverless can consume with built artifact locations
+- Maybe combo of serverless plug-in and gradle plug-in that builds and then loads the file?
+
+### GitHub integration
+
+- Serverless/GitHub tool that sets up an app, and then grabs it's webhook secret and PEM and loads into AWS SSM Parameter Store?

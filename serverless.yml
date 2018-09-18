@@ -14,11 +14,13 @@ frameworkVersion: "=1.31.0"
 provider:
   name: aws
   runtime: java8
+  logRetentionInDays: 7
 
 
 package:
   individually: true
 
+# TODO external various names and keys to variables
 functions:
   webhook-handler:
     package:
@@ -31,12 +33,24 @@ functions:
          - "ssm:GetParameter"
          - "ssm:GetParametersByPath"
        Resource: { Fn::Join: [":", [ "arn:aws:ssm", { "Ref": "AWS::Region" }, { Ref: "AWS::AccountId" }, "parameter/${self:provider.stage}/chronicler/*" ]] }
+    -  Effect: "Allow"
+       Action:
+         - "SNS:Publish"
+       Resource: { Fn::Join: [":", ["arn:aws:sns", { "Ref": "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "${self:provider.stage}_chronicler_diff-topic" ] ]  }
     environment:
         GITHUB_WEBHOOK_SECRET_SSM: /${self:provider.stage}/chronicler/github/webhook-secret
+        SNS_TOPIC_ARN: { Fn::Join: [":", ["arn:aws:sns", { "Ref": "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "${self:provider.stage}_chronicler_diff-topic" ] ]  }
     events:
-    	- http:
+        - http:
             path: github/webhooks
             method: post
+  diff-analyzer:
+    package:
+      artifact: diff-analyzer/build/distributions/diff-analyzer.zip
+    handler: org.starchartlabs.chronicler.diff.analyzer.Handler
+    iamRoleStatementsInherit: true
+    events:
+        - sns: ${self:provider.stage}_chronicler_diff-topic
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
