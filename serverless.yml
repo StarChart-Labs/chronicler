@@ -1,17 +1,6 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
+# For full config options, check the docs: docs.serverless.com
 
-service: test-hello # NOTE: update this with your service name
+service: chronicler
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -20,42 +9,29 @@ service: test-hello # NOTE: update this with your service name
 provider:
   name: aws
   runtime: java8
-
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
-
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  iamRoleStatements:
+    -  Effect: "Allow"
+       Action:
+         - "ssm:GetParameter"
+         - "ssm:GetParametersByPath"
+       Resource:
+         Fn::Join:
+           - ""
+           - - "arn:aws:ssm:us-east-1:895508338844:parameter/${self:provider.stage}/chronicler/*"
 
 # you can add packaging information here
 package:
   artifact: webhook-handler/build/distributions/hello.zip
 
 functions:
-  hello:
+  webhook-handler:
     handler: org.starchartlabs.chronicler.webhook.handler.Handler
+    environment:
+        GITHUB_WEBHOOK_SECRET_SSM: /${self:provider.stage}/chronicler/github/webhook-secret
     events:
     	- http:
-            path: users/create
-            method: get
+            path: github/webhooks
+            method: post
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -85,19 +61,3 @@ functions:
 #      - cognitoUserPool:
 #          pool: MyUserPool
 #          trigger: PreSignUp
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
