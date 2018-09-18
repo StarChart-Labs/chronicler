@@ -15,12 +15,14 @@ provider:
   name: aws
   runtime: java8
 
-# you can add packaging information here
+
 package:
-  artifact: webhook-handler/build/distributions/hello.zip
+  individually: true
 
 functions:
   webhook-handler:
+    package:
+      artifact: webhook-handler/build/distributions/webhook-handler.zip
     handler: org.starchartlabs.chronicler.webhook.handler.Handler
     iamRoleStatementsInherit: true
     iamRoleStatements:
