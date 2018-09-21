@@ -2,9 +2,13 @@
 
 # Plugins
 # serverless-iam-roles-per-function: https://github.com/functionalone/serverless-iam-roles-per-function
+#    Allows inheriting default IAM settings from the provider layer, and specifying more specific permissions per function without repeating common
+# serverless-domain-manager: https://github.com/amplify-education/serverless-domain-manager
+#    Allows setting up a custom domain name (*.starchartlabs.org) for the generated API. This first requires generating an ACM cert for the domain
 
 plugins:
   - serverless-iam-roles-per-function
+  - serverless-domain-manager
 
 service: chronicler
 
@@ -15,6 +19,20 @@ provider:
   name: aws
   runtime: java8
   logRetentionInDays: 7
+  stageTags:
+    SERVICE: "${self:service}"
+  tags:
+    SERVICE: "${self:service}"
+    STAGE: "${self:provider.stage}"
+
+# TODO Appears default variable syntax is broken, hopefully fixed by production time so prod can be set to just service name
+# https://github.com/serverless/serverless/issues/3714
+custom:
+  customDomain:
+    domainName: "${self:service}-${self:provider.stage}.starchartlabs.org"
+    basePath: ''
+    certificateName: '*.starchartlabs.org'
+    createRoute53Record: false
 
 
 package:
