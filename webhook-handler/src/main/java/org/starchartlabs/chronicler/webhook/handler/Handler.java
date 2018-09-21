@@ -15,6 +15,9 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.chronicler.calamari.core.WebhookVerifier;
+import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
+import org.starchartlabs.chronicler.github.model.webhook.PingEvent;
+import org.starchartlabs.chronicler.github.model.webhook.PullRequestEvent;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -32,6 +35,8 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     private static final String GITHUB_HASH_HEADER = "X-Hub-Signature";
 
+    private static final String GITHUB_EVENT_HEADER = "X-GitHub-Event";
+
     private static final String PARAMETER_STORE_SECRET_KEY = "GITHUB_WEBHOOK_SECRET_SSM";
 
     private static final String SNS_TOPIC_ARN = "SNS_TOPIC_ARN";
@@ -43,7 +48,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     // Provided for instantiation by AWS Lambda
     public Handler() {
-        this(new WebhookVerifier(() -> getKey()));
+        this(new WebhookVerifier(Handler::getKey));
     }
 
     public Handler(WebhookVerifier webhookVerifier) {
@@ -61,27 +66,52 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         boolean verified = webhookVerifier.isPayloadLegitimate(verificationHeader, input.getBody());
 
         if (verified) {
+            logger.info("Verified GitHub webhook request");
+
             result = new APIGatewayProxyResponseEvent()
                     .withStatusCode(204);
 
-            // TODO Send actual data
-            AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
+            String eventType = input.getHeaders().get(GITHUB_EVENT_HEADER);
+            String body = input.getBody();
 
-            PublishRequest publishReq = new PublishRequest()
-                    .withTopicArn(getTopicArn())
-                    .withMessage("Hello SNS!");
-            snsClient.publish(publishReq);
+            if (PingEvent.isCompatibleWithEventType(eventType)) {
+                PingEvent event = PingEvent.fromJson(body);
+
+                logger.info("GitHub Ping: {}", event.getZen());
+            } else if (PullRequestEvent.isCompatibleWithEventType(eventType)) {
+                PullRequestEvent event = PullRequestEvent.fromJson(body);
+
+                logger.info("Received pull request event ({}, pr:{})", event.getLoggableRepositoryName(),
+                        event.getAction());
+
+                if (event.isFileChangeType()) {
+                    GitHubPullRequestEvent snsEvent = new GitHubPullRequestEvent(
+                            event.getNumber(),
+                            event.getLoggableRepositoryName(),
+                            event.getPullRequestUrl(),
+                            event.getBaseRepositoryUrl(),
+                            event.getPullRequestStatusesUrl(),
+                            event.getHeadCommitSha());
+
+                    AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
+
+                    PublishRequest publishReq = new PublishRequest()
+                            .withTopicArn(getTopicArn())
+                            .withMessage(snsEvent.toJson());
+                    snsClient.publish(publishReq);
+                }
+            } else {
+                logger.debug("Received unhandled event type: {}", eventType);
+            }
+        } else {
+            logger.warn("Unverified POST received: {}", input);
         }
 
         return result;
     }
 
-    private String getTopicArn() {
+    private static String getTopicArn() {
         return Objects.requireNonNull(System.getenv(SNS_TOPIC_ARN));
-    }
-
-    private static String getParameterStoreSecretKey() {
-        return Objects.requireNonNull(System.getenv(PARAMETER_STORE_SECRET_KEY));
     }
 
     private static String getKey() {
@@ -94,6 +124,10 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         GetParameterResult result = systemsManagementClient.getParameter(getParameterRequest);
 
         return result.getParameter().getValue();
+    }
+
+    private static String getParameterStoreSecretKey() {
+        return Objects.requireNonNull(System.getenv(PARAMETER_STORE_SECRET_KEY));
     }
 
 }
