@@ -1,0 +1,7 @@
+//Dependency versions managed in $rootDir/dependencies.properties
+dependencies {
+    compile 'com.google.code.findbugs:jsr305'
+    compile 'com.google.code.gson:gson'
+    compile 'org.slf4j:slf4j-api'
+    compile 'org.starchartlabs.alloy:alloy-core'
+}

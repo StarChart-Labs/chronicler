@@ -38,6 +38,16 @@ If you discover a security vulnerability, contact the development team by e-mail
 ### TODO
 
 - Further narrow serverless user permissions, different users for dev, valid (cd) and production
+- service telemetry (newrelic-style info) on aws
+- usage alerts
+- add tags to resources to form a resource group
+- reduce memory allocation of webhook handler
+- SNS topic names into AWS System Manager Parameters (read info env var, cloudformation update/set as part of serverless deploy)
+   - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html
+
+### Serverless PLugins?
+
+- standards plugins: defines standardized naming conventions for things like parameter store keys, sns topics, etc
 
 ### Gradle integration
 
