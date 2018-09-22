@@ -39,7 +39,9 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     private static final String PARAMETER_STORE_SECRET_KEY = "GITHUB_WEBHOOK_SECRET_SSM";
 
-    private static final String SNS_TOPIC_ARN = "SNS_TOPIC_ARN";
+    private static final String SNS_TOPIC_ARN = System.getenv("SNS_TOPIC_ARN");
+
+    private static final AmazonSNS SNS_CLIENT = AmazonSNSClientBuilder.defaultClient();
 
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -93,12 +95,10 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
                             event.getPullRequestStatusesUrl(),
                             event.getHeadCommitSha());
 
-                    AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-
                     PublishRequest publishReq = new PublishRequest()
-                            .withTopicArn(getTopicArn())
+                            .withTopicArn(SNS_TOPIC_ARN)
                             .withMessage(snsEvent.toJson());
-                    snsClient.publish(publishReq);
+                    SNS_CLIENT.publish(publishReq);
                 }
             } else {
                 logger.debug("Received unhandled event type: {}", eventType);
@@ -108,10 +108,6 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         }
 
         return result;
-    }
-
-    private static String getTopicArn() {
-        return Objects.requireNonNull(System.getenv(SNS_TOPIC_ARN));
     }
 
     private static String getKey() {
