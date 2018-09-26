@@ -110,6 +110,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         return result;
     }
 
+    // TODO romeara this is duplicated - library?
     private static String getKey() {
         AWSSimpleSystemsManagement systemsManagementClient = AWSSimpleSystemsManagementClientBuilder.defaultClient();
 

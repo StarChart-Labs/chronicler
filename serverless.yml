@@ -1,5 +1,12 @@
 # For full config options, check the docs: docs.serverless.com
 
+# TODO Document manual setup (secure parameter store values, github app, etc) required before deploy
+# GitHub App
+# CNAME for URL (Google Domains)
+# /${self:provider.stage}/${self:service}/github/webhook-secret (encrypted)
+# /${self:provider.stage}/${self:service}/github/app/key (encrypted)
+# /${self:provider.stage}/${self:service}/github/app/id (string)
+
 # Plugins
 # serverless-iam-roles-per-function: https://github.com/functionalone/serverless-iam-roles-per-function
 #    Allows inheriting default IAM settings from the provider layer, and specifying more specific permissions per function without repeating common
@@ -13,7 +20,7 @@ plugins:
 service: chronicler
 
 # Pin your service to only deploy with a specific Serverless version
-frameworkVersion: "=1.31.0"
+# frameworkVersion: "=1.31.0"
 
 provider:
   name: aws
@@ -28,6 +35,8 @@ provider:
 # TODO Appears default variable syntax is broken, hopefully fixed by production time so prod can be set to just service name
 # https://github.com/serverless/serverless/issues/3714
 custom:
+  topic:
+    diff: "${self:provider.stage}_chronicler_diff-topic"
   customDomain:
     domainName: "${self:service}-${self:provider.stage}.starchartlabs.org"
     basePath: ''
@@ -44,20 +53,21 @@ functions:
     package:
       artifact: webhook-handler/build/distributions/webhook-handler.zip
     handler: org.starchartlabs.chronicler.webhook.handler.Handler
+    description: Receives GitHub webhook events and performs initial verification/processing
     iamRoleStatementsInherit: true
     iamRoleStatements:
     -  Effect: "Allow"
        Action:
          - "ssm:GetParameter"
          - "ssm:GetParametersByPath"
-       Resource: { Fn::Join: [":", [ "arn:aws:ssm", { "Ref": "AWS::Region" }, { Ref: "AWS::AccountId" }, "parameter/${self:provider.stage}/chronicler/*" ]] }
+       Resource: { Fn::Join: [":", [ "arn:aws:ssm", { "Ref" : "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "parameter/${self:provider.stage}/${self:service}/github/webhook-secret" ]] }
     -  Effect: "Allow"
        Action:
          - "SNS:Publish"
-       Resource: { Fn::Join: [":", ["arn:aws:sns", { "Ref": "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "${self:provider.stage}_chronicler_diff-topic" ] ]  }
+       Resource: { Fn::Join: [":", ["arn:aws:sns", { "Ref" : "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "${self:custom.topic.diff}" ] ] }
     environment:
-        GITHUB_WEBHOOK_SECRET_SSM: /${self:provider.stage}/chronicler/github/webhook-secret
-        SNS_TOPIC_ARN: { Fn::Join: [":", ["arn:aws:sns", { "Ref": "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "${self:provider.stage}_chronicler_diff-topic" ] ]  }
+        GITHUB_WEBHOOK_SECRET_SSM: /${self:provider.stage}/${self:service}/github/webhook-secret
+        SNS_TOPIC_ARN: { Fn::Join: [":", ["arn:aws:sns", { "Ref": "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "${self:custom.topic.diff}" ] ]  }
     events:
         - http:
             path: github/webhooks
@@ -66,35 +76,18 @@ functions:
     package:
       artifact: diff-analyzer/build/distributions/diff-analyzer.zip
     handler: org.starchartlabs.chronicler.diff.analyzer.Handler
+    description: Takes processed GitHub data and determines if the changeset meets relevant criteria
+    timeout: 300
     iamRoleStatementsInherit: true
+    iamRoleStatements:
+    -  Effect: "Allow"
+       Action:
+         - "ssm:GetParameter"
+         - "ssm:GetParametersByPath"
+       Resource: { Fn::Join: [":", [ "arn:aws:ssm", { "Ref" : "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "parameter/${self:provider.stage}/${self:service}/github/app/*" ]] }
+    environment:
+        GITHUB_APP_KEY_SSM: /${self:provider.stage}/${self:service}/github/app/key
+        GITHUB_APP_ID_SSM: /${self:provider.stage}/${self:service}/github/app/id
+        #GITHUB_APP_ID: ${ssm:/${self:provider.stage}/${self:service}/github/app/id}
     events:
-        - sns: ${self:provider.stage}_chronicler_diff-topic
-
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
-#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
+        - sns: ${self:custom.topic.diff}
