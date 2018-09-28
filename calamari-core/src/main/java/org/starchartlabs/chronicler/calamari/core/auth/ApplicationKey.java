@@ -8,7 +8,7 @@
  * Contributors:
  *    romeara - initial API and implementation and/or initial documentation
  */
-package org.starchartlabs.chronicler.calamari.core;
+package org.starchartlabs.chronicler.calamari.core.auth;
 
 import java.io.IOException;
 import java.io.StringReader;

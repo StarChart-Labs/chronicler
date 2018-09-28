@@ -8,7 +8,7 @@
  * Contributors:
  *    romeara - initial API and implementation and/or initial documentation
  */
-package org.starchartlabs.chronicler.diff.analyzer;
+package org.starchartlabs.chronicler.diff.analyzer.aws;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -16,8 +16,10 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.starchartlabs.chronicler.calamari.core.ApplicationKey;
-import org.starchartlabs.chronicler.calamari.core.InstallationAccessToken;
+import org.starchartlabs.chronicler.calamari.core.auth.ApplicationKey;
+import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
+import org.starchartlabs.chronicler.diff.analyzer.AnalysisResults;
+import org.starchartlabs.chronicler.diff.analyzer.PullRequestAnalyzer;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -44,18 +46,25 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
         Collection<GitHubPullRequestEvent> events = getEvents(input);
 
         if (!events.isEmpty()) {
-            // TODO set to trace once verified
-            logger.info("Received SNS event: " + input);
+            logger.trace("Received SNS event: " + input);
 
             ApplicationKey applicationKey = new ApplicationKey(APPLICATION_ID, Handler::getApplicationKey);
 
             // TODO romeara make parallel? Will we actually get multiple?
             // TODO romeara Move down to a cloud-provider agnostic library?
             for (GitHubPullRequestEvent event : events) {
+                logger.info("Processing pull request for {}", event.getLoggableRepositoryName());
+
                 InstallationAccessToken accessToken = InstallationAccessToken
                         .forRepository(applicationKey.getKeyHeaderSupplier(), event.getBaseRepositoryUrl());
 
-                logger.info("Access token read: {}", !accessToken.getTokenHeaderSupplier().get().isEmpty());
+                PullRequestAnalyzer analyzer = new PullRequestAnalyzer(event.getPullRequestUrl(),
+                        accessToken.getTokenHeaderSupplier());
+
+                AnalysisResults results = analyzer.analyze();
+
+                logger.info("Analysis results: prod: {}, rel: {}", results.isModifyingProductionFiles(),
+                        results.isModifyingReleaseNotes());
             }
         }
 

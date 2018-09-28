@@ -14,7 +14,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.starchartlabs.chronicler.calamari.core.WebhookVerifier;
+import org.starchartlabs.chronicler.calamari.core.webhook.WebhookVerifier;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PingEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PullRequestEvent;
