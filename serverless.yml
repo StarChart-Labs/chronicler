@@ -75,7 +75,7 @@ functions:
   diff-analyzer:
     package:
       artifact: diff-analyzer/build/distributions/diff-analyzer.zip
-    handler: org.starchartlabs.chronicler.diff.analyzer.Handler
+    handler: org.starchartlabs.chronicler.diff.analyzer.aws.Handler
     description: Takes processed GitHub data and determines if the changeset meets relevant criteria
     timeout: 300
     iamRoleStatementsInherit: true
