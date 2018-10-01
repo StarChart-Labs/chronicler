@@ -35,6 +35,10 @@ public class AnalysisResults {
         return modifyingReleaseNotes;
     }
 
+    public boolean isDocumented() {
+        return isModifyingReleaseNotes() || !isModifyingProductionFiles();
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(isModifyingProductionFiles(),
