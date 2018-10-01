@@ -12,6 +12,7 @@ package org.starchartlabs.chronicler.diff.analyzer.aws;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
 import org.starchartlabs.chronicler.diff.analyzer.AnalysisResults;
 import org.starchartlabs.chronicler.diff.analyzer.PullRequestAnalyzer;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
+import org.starchartlabs.chronicler.github.model.pullrequest.StatusRequest;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -57,14 +59,23 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
 
                 InstallationAccessToken accessToken = InstallationAccessToken
                         .forRepository(applicationKey.getKeyHeaderSupplier(), event.getBaseRepositoryUrl());
+                Supplier<String> accessTokenSupplier = accessToken.getTokenHeaderSupplier();
 
-                PullRequestAnalyzer analyzer = new PullRequestAnalyzer(event.getPullRequestUrl(),
-                        accessToken.getTokenHeaderSupplier());
+                // Sset pending status
+                StatusRequest pendingRequest = new StatusRequest("pending", "Analysis in progress",
+                        "documentation/chronicler");
+                pendingRequest.sendRequest(event.getPullRequestStatusesUrl(), accessTokenSupplier);
+
+                PullRequestAnalyzer analyzer = new PullRequestAnalyzer(event.getPullRequestUrl(), accessTokenSupplier);
 
                 AnalysisResults results = analyzer.analyze();
 
                 logger.info("Analysis results: prod: {}, rel: {}", results.isModifyingProductionFiles(),
                         results.isModifyingReleaseNotes());
+
+                // Set resolution status
+                StatusRequest status = getResult(results);
+                status.sendRequest(event.getPullRequestStatusesUrl(), accessTokenSupplier);
             }
         }
 
@@ -109,6 +120,24 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
         GetParameterResult result = systemsManagementClient.getParameter(getParameterRequest);
 
         return result.getParameter().getValue();
+    }
+
+    // TODO move out from handler
+    private static StatusRequest getResult(AnalysisResults results) {
+        String state = (results.isDocumented() ? "success" : "failure");
+        String description = null;
+
+        if (results.isDocumented()) {
+            if (results.isModifyingProductionFiles()) {
+                description = "Release notes updated as required";
+            } else {
+                description = "No production files modified";
+            }
+        } else {
+            description = "Production files modified without release notes";
+        }
+
+        return new StatusRequest(state, description, "documentation/chronicler");
     }
 
 }
