@@ -63,7 +63,7 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
 
                 // Sset pending status
                 StatusRequest pendingRequest = new StatusRequest("pending", "Analysis in progress",
-                        "documentation/chronicler");
+                        "doc/chronicler");
                 pendingRequest.sendRequest(event.getPullRequestStatusesUrl(), accessTokenSupplier);
 
                 PullRequestAnalyzer analyzer = new PullRequestAnalyzer(event.getPullRequestUrl(), accessTokenSupplier);
@@ -137,7 +137,7 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
             description = "Production files modified without release notes";
         }
 
-        return new StatusRequest(state, description, "documentation/chronicler");
+        return new StatusRequest(state, description, "doc/chronicler");
     }
 
 }
