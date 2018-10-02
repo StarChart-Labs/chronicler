@@ -3,6 +3,7 @@ dependencies {
     compile project(':calamari-core')
     compile project(':events')
     compile project(':github-model')
+    compile project(':machete')
     
     compile 'com.amazonaws:aws-java-sdk-sns'
     compile 'com.amazonaws:aws-java-sdk-ssm'

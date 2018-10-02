@@ -19,7 +19,9 @@ import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.starchartlabs.chronicler.calamari.core.MediaTypes;
 import org.starchartlabs.chronicler.calamari.core.PagingLinks;
+import org.starchartlabs.chronicler.github.model.Requests;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,9 +34,6 @@ import okhttp3.Response;
 
 //https://developer.github.com/v3/pulls/#list-pull-requests-files
 public class PullRequestAnalyzer {
-
-    // TODO common?
-    private static final String MEDIA_TYPE = "application/vnd.github.machine-man-preview+json";
 
     private static final Gson GSON = new GsonBuilder().create();
 
@@ -63,10 +62,10 @@ public class PullRequestAnalyzer {
                 .addQueryParameter("per_page", "30")
                 .build();
 
-        Request.Builder requestBuilder = new Request.Builder()
-                .method("GET", null)
+        Request.Builder requestBuilder = Requests.newRequest()
+                .get()
                 .header("Authorization", accessTokenSupplier.get())
-                .header("Accept", MEDIA_TYPE)
+                .header("Accept", MediaTypes.APP_PREVIEW)
                 .url(url);
 
         Request request = requestBuilder.build();

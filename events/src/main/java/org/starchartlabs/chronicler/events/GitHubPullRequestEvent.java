@@ -21,6 +21,8 @@ import com.google.gson.GsonBuilder;
 
 public class GitHubPullRequestEvent {
 
+    public static final String SUBJECT = GitHubPullRequestEvent.class.getName() + ":1";
+
     private static final Gson GSON = new GsonBuilder().create();
 
     private final long number;
