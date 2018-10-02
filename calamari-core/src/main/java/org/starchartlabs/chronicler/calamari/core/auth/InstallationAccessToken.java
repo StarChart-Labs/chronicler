@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 
 import org.starchartlabs.alloy.core.Strings;
 import org.starchartlabs.alloy.core.Suppliers;
+import org.starchartlabs.chronicler.calamari.core.MediaTypes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,10 +30,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 //https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/
-public class InstallationAccessToken {
-
-    // TODO romeara make this overridable by ENV because likely to be changed by GitHub
-    private static final String TOKEN_MEDIA_TYPE = "application/vnd.github.machine-man-preview+json";
+public class InstallationAccessToken implements Supplier<String> {
 
     // The maximum is 60, allow for some drift
     private static final int EXPIRATION_MINUTES = 59;
@@ -41,22 +39,27 @@ public class InstallationAccessToken {
 
     private final String installationAccessTokenUrl;
 
+    private final String userAgent;
+
     private final OkHttpClient httpClient;
 
-    public InstallationAccessToken(Supplier<String> applicationKeyHeaderSupplier, String installationAccessTokenUrl) {
+    private final Supplier<String> headerSupplier;
+
+    public InstallationAccessToken(String installationAccessTokenUrl, Supplier<String> applicationKeyHeaderSupplier,
+            String userAgent) {
         this.applicationKeyHeaderSupplier = Objects.requireNonNull(applicationKeyHeaderSupplier);
         this.installationAccessTokenUrl = Objects.requireNonNull(installationAccessTokenUrl);
+        this.userAgent = Objects.requireNonNull(userAgent);
 
         httpClient = new OkHttpClient();
+        headerSupplier = Suppliers.map(
+                Suppliers.memoizeWithExpiration(this::generateNewToken, EXPIRATION_MINUTES, TimeUnit.MINUTES),
+                InstallationAccessToken::toAuthorizationHeader);
     }
 
-    public Supplier<String> getTokenHeaderSupplier() {
-        return Suppliers.map(getTokenSupplier(), InstallationAccessToken::toAuthorizationHeader);
-    }
-
-    // TODO romeara Protected to allow access if needed, use case not certain for non-header value
-    protected Supplier<String> getTokenSupplier() {
-        return Suppliers.memoizeWithExpiration(this::generateNewToken, EXPIRATION_MINUTES, TimeUnit.MINUTES);
+    @Override
+    public String get() {
+        return headerSupplier.get();
     }
 
     private String generateNewToken() {
@@ -64,9 +67,10 @@ public class InstallationAccessToken {
 
         RequestBody body = RequestBody.create(null, new byte[] {});
         Request request = new Request.Builder()
-                .method("POST", body)
+                .post(body)
                 .header("Authorization", applicationKeyHeaderSupplier.get())
-                .header("Accept", TOKEN_MEDIA_TYPE)
+                .header("Accept", MediaTypes.APP_PREVIEW)
+                .header("User-Agent", userAgent)
                 .url(url)
                 .build();
 
@@ -84,10 +88,11 @@ public class InstallationAccessToken {
         }
     }
 
-    public static InstallationAccessToken forRepository(Supplier<String> applicationKeyHeaderSupplier,
-            String repositoryUrl) {
+    public static InstallationAccessToken forRepository(String repositoryUrl,
+            Supplier<String> applicationKeyHeaderSupplier, String userAgent) {
         Objects.requireNonNull(applicationKeyHeaderSupplier);
         Objects.requireNonNull(repositoryUrl);
+        Objects.requireNonNull(userAgent);
 
         OkHttpClient httpClient = new OkHttpClient();
 
@@ -98,9 +103,10 @@ public class InstallationAccessToken {
                 .build();
 
         Request request = new Request.Builder()
-                .method("GET", null)
+                .get()
                 .header("Authorization", applicationKeyHeaderSupplier.get())
-                .header("Accept", TOKEN_MEDIA_TYPE)
+                .header("Accept", MediaTypes.APP_PREVIEW)
+                .header("User-Agent", userAgent)
                 .url(url)
                 .build();
 
@@ -111,7 +117,7 @@ public class InstallationAccessToken {
                 String installationAccessTokenUrl = InstallationResponse.fromJson(response.body().string())
                         .getAccessTokensUrl();
 
-                return new InstallationAccessToken(applicationKeyHeaderSupplier, installationAccessTokenUrl);
+                return new InstallationAccessToken(installationAccessTokenUrl, applicationKeyHeaderSupplier, userAgent);
             } else {
                 throw new RuntimeException("Request unsuccessful (" + response.code() + ")");
             }

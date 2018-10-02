@@ -12,17 +12,21 @@ package org.starchartlabs.chronicler.diff.analyzer.aws;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.chronicler.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
 import org.starchartlabs.chronicler.diff.analyzer.AnalysisResults;
 import org.starchartlabs.chronicler.diff.analyzer.PullRequestAnalyzer;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
-import org.starchartlabs.chronicler.github.model.pullrequest.StatusRequest;
+import org.starchartlabs.chronicler.github.model.Requests;
+import org.starchartlabs.chronicler.github.model.pullrequest.StatusHandler;
+import org.starchartlabs.chronicler.machete.SecuredRsaKeyParameter;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -45,39 +49,11 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
 
     @Override
     public Void handleRequest(SNSEvent input, Context context) {
-        Collection<GitHubPullRequestEvent> events = getEvents(input);
+        logger.trace("Received SNS event: " + input);
+        ApplicationKey applicationKey = new ApplicationKey(APPLICATION_ID, getPrivateKeySupplier());
 
-        if (!events.isEmpty()) {
-            logger.trace("Received SNS event: " + input);
-
-            ApplicationKey applicationKey = new ApplicationKey(APPLICATION_ID, Handler::getApplicationKey);
-
-            // TODO romeara make parallel? Will we actually get multiple?
-            // TODO romeara Move down to a cloud-provider agnostic library?
-            for (GitHubPullRequestEvent event : events) {
-                logger.info("Processing pull request for {}", event.getLoggableRepositoryName());
-
-                InstallationAccessToken accessToken = InstallationAccessToken
-                        .forRepository(applicationKey.getKeyHeaderSupplier(), event.getBaseRepositoryUrl());
-                Supplier<String> accessTokenSupplier = accessToken.getTokenHeaderSupplier();
-
-                // Sset pending status
-                StatusRequest pendingRequest = new StatusRequest("pending", "Analysis in progress",
-                        "doc/chronicler");
-                pendingRequest.sendRequest(event.getPullRequestStatusesUrl(), accessTokenSupplier);
-
-                PullRequestAnalyzer analyzer = new PullRequestAnalyzer(event.getPullRequestUrl(), accessTokenSupplier);
-
-                AnalysisResults results = analyzer.analyze();
-
-                logger.info("Analysis results: prod: {}, rel: {}", results.isModifyingProductionFiles(),
-                        results.isModifyingReleaseNotes());
-
-                // Set resolution status
-                StatusRequest status = getResult(results);
-                status.sendRequest(event.getPullRequestStatusesUrl(), accessTokenSupplier);
-            }
-        }
+        getEvents(input).stream()
+        .forEach(event -> handleEvent(event, applicationKey));
 
         return null;
     }
@@ -85,28 +61,68 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
     private Collection<GitHubPullRequestEvent> getEvents(SNSEvent input) {
         return input.getRecords().stream()
                 .map(SNSRecord::getSNS)
+                .filter(sns -> Objects.equals(sns.getSubject(), GitHubPullRequestEvent.SUBJECT))
                 .map(SNS::getMessage)
                 .map(GitHubPullRequestEvent::fromJson)
                 .collect(Collectors.toSet());
     }
 
-    // TODO romeara this is duplicated - library?
-    private static String getApplicationKey() {
-        AWSSimpleSystemsManagement systemsManagementClient = AWSSimpleSystemsManagementClientBuilder.defaultClient();
-
-        GetParameterRequest getParameterRequest = new GetParameterRequest();
-        getParameterRequest.withName(getParameterStoreSecretKey());
-        getParameterRequest.setWithDecryption(true);
-
-        GetParameterResult result = systemsManagementClient.getParameter(getParameterRequest);
-
-        String keyValue = result.getParameter().getValue();
-
-        return "-----BEGIN RSA PRIVATE KEY----- \n" + keyValue + "\n-----END RSA PRIVATE KEY-----";
+    private Supplier<String> getPrivateKeySupplier() {
+        return Suppliers.memoizeWithExpiration(SecuredRsaKeyParameter.fromEnv(PARAMETER_STORE_SECRET_KEY),
+                10, TimeUnit.MINUTES);
     }
 
-    private static String getParameterStoreSecretKey() {
-        return Objects.requireNonNull(System.getenv(PARAMETER_STORE_SECRET_KEY));
+    // TODO move out from handler
+    private void handleEvent(GitHubPullRequestEvent event, ApplicationKey applicationKey) {
+        logger.info("Processing pull request for {}", event.getLoggableRepositoryName());
+
+        InstallationAccessToken accessToken = InstallationAccessToken.forRepository(event.getBaseRepositoryUrl(),
+                applicationKey, Requests.USER_AGENT);
+
+        StatusHandler statusHandler = new StatusHandler("doc/chronicler", event.getPullRequestStatusesUrl(),
+                accessToken);
+
+        // Set pending status
+        statusHandler.sendPending("Analysis in progress");
+
+        try {
+            PullRequestAnalyzer analyzer = new PullRequestAnalyzer(event.getPullRequestUrl(), accessToken);
+
+            AnalysisResults results = analyzer.analyze();
+
+            logger.info("Analysis results: prod: {}, rel: {}", results.isModifyingProductionFiles(),
+                    results.isModifyingReleaseNotes());
+
+            // Set resolution status
+            processResult(results, statusHandler);
+        } catch (Exception e) {
+            statusHandler.sendError("Error processing pull request files");
+
+            throw new RuntimeException("Error processing analysis results", e);
+        }
+
+
+    }
+
+    // TODO move out from handler
+    private void processResult(AnalysisResults results, StatusHandler statusHandler) {
+        String description = null;
+
+        if (results.isDocumented()) {
+            if (results.isModifyingProductionFiles()) {
+                description = "Release notes updated as required";
+            } else {
+                description = "No production files modified";
+            }
+        } else {
+            description = "Production files modified without release notes";
+        }
+
+        if (results.isDocumented()) {
+            statusHandler.sendSuccess(description);
+        } else {
+            statusHandler.sendFailure(description);
+        }
     }
 
     // TODO romeara Temporary until can figure out how to reference SSM in serverless.yml
@@ -120,24 +136,6 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
         GetParameterResult result = systemsManagementClient.getParameter(getParameterRequest);
 
         return result.getParameter().getValue();
-    }
-
-    // TODO move out from handler
-    private static StatusRequest getResult(AnalysisResults results) {
-        String state = (results.isDocumented() ? "success" : "failure");
-        String description = null;
-
-        if (results.isDocumented()) {
-            if (results.isModifyingProductionFiles()) {
-                description = "Release notes updated as required";
-            } else {
-                description = "No production files modified";
-            }
-        } else {
-            description = "Production files modified without release notes";
-        }
-
-        return new StatusRequest(state, description, "doc/chronicler");
     }
 
 }

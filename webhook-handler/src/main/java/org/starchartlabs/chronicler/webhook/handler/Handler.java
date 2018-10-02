@@ -11,22 +11,23 @@
 package org.starchartlabs.chronicler.webhook.handler;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.chronicler.calamari.core.webhook.WebhookVerifier;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PingEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PullRequestEvent;
+import org.starchartlabs.chronicler.machete.SecuredParameter;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.PublishRequest;
@@ -50,7 +51,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     // Provided for instantiation by AWS Lambda
     public Handler() {
-        this(new WebhookVerifier(Handler::getKey));
+        this(new WebhookVerifier(getWebhookSecretSupplier()));
     }
 
     public Handler(WebhookVerifier webhookVerifier) {
@@ -76,33 +77,12 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             String eventType = input.getHeaders().get(GITHUB_EVENT_HEADER);
             String body = input.getBody();
 
-            if (PingEvent.isCompatibleWithEventType(eventType)) {
-                PingEvent event = PingEvent.fromJson(body);
+            Optional<GitHubPullRequestEvent> snsEvent = handleEvent(eventType, body);
 
-                logger.info("GitHub Ping: {}", event.getZen());
-            } else if (PullRequestEvent.isCompatibleWithEventType(eventType)) {
-                PullRequestEvent event = PullRequestEvent.fromJson(body);
-
-                logger.info("Received pull request event ({}, pr:{})", event.getLoggableRepositoryName(),
-                        event.getAction());
-
-                if (event.isFileChangeType()) {
-                    GitHubPullRequestEvent snsEvent = new GitHubPullRequestEvent(
-                            event.getNumber(),
-                            event.getLoggableRepositoryName(),
-                            event.getPullRequestUrl(),
-                            event.getBaseRepositoryUrl(),
-                            event.getPullRequestStatusesUrl(),
-                            event.getHeadCommitSha());
-
-                    PublishRequest publishReq = new PublishRequest()
-                            .withTopicArn(SNS_TOPIC_ARN)
-                            .withMessage(snsEvent.toJson());
-                    SNS_CLIENT.publish(publishReq);
-                }
-            } else {
-                logger.debug("Received unhandled event type: {}", eventType);
-            }
+            snsEvent
+            .map(GitHubPullRequestEvent::toJson)
+            .map(event -> toSnsRequest(GitHubPullRequestEvent.SUBJECT, event))
+            .ifPresent(SNS_CLIENT::publish);
         } else {
             logger.warn("Unverified POST received: {}", input);
         }
@@ -110,21 +90,46 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         return result;
     }
 
-    // TODO romeara this is duplicated - library?
-    private static String getKey() {
-        AWSSimpleSystemsManagement systemsManagementClient = AWSSimpleSystemsManagementClientBuilder.defaultClient();
-
-        GetParameterRequest getParameterRequest = new GetParameterRequest();
-        getParameterRequest.withName(getParameterStoreSecretKey());
-        getParameterRequest.setWithDecryption(true);
-
-        GetParameterResult result = systemsManagementClient.getParameter(getParameterRequest);
-
-        return result.getParameter().getValue();
+    private PublishRequest toSnsRequest(String subject, String eventBody) {
+        return new PublishRequest()
+                .withSubject(subject)
+                .withTopicArn(SNS_TOPIC_ARN)
+                .withMessage(eventBody);
     }
 
-    private static String getParameterStoreSecretKey() {
-        return Objects.requireNonNull(System.getenv(PARAMETER_STORE_SECRET_KEY));
+    // TODO romeara move out of handler
+    private Optional<GitHubPullRequestEvent> handleEvent(String eventType, String body) {
+        GitHubPullRequestEvent result = null;
+
+        if (PingEvent.isCompatibleWithEventType(eventType)) {
+            PingEvent event = PingEvent.fromJson(body);
+
+            logger.info("GitHub Ping: {}", event.getZen());
+        } else if (PullRequestEvent.isCompatibleWithEventType(eventType)) {
+            PullRequestEvent event = PullRequestEvent.fromJson(body);
+
+            logger.info("Received pull request event ({}, pr:{})", event.getLoggableRepositoryName(),
+                    event.getAction());
+
+            if (event.isFileChangeType()) {
+                result = new GitHubPullRequestEvent(
+                        event.getNumber(),
+                        event.getLoggableRepositoryName(),
+                        event.getPullRequestUrl(),
+                        event.getBaseRepositoryUrl(),
+                        event.getPullRequestStatusesUrl(),
+                        event.getHeadCommitSha());
+            }
+        } else {
+            logger.debug("Received unhandled event type: {}", eventType);
+        }
+
+        return Optional.ofNullable(result);
+    }
+
+    private static Supplier<String> getWebhookSecretSupplier() {
+        return Suppliers.memoizeWithExpiration(SecuredParameter.fromEnv(PARAMETER_STORE_SECRET_KEY),
+                10, TimeUnit.MINUTES);
     }
 
 }

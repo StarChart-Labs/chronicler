@@ -32,32 +32,34 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-public class ApplicationKey {
+public class ApplicationKey implements Supplier<String> {
+
+    // The maximum is 10, allow for some drift
+    private static final int EXPIRATION_MINUTES = 9;
 
     // Support necessary security
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    // The maximum is 10, allow for some drift
-    private static final int EXPIRATION_MINUTES = 9;
-
     private final String githubApplicationId;
 
     private final Supplier<String> privateKeySupplier;
 
+    private final Supplier<String> headerSupplier;
+
     public ApplicationKey(String githubApplicationId, Supplier<String> privateKeySupplier) {
         this.githubApplicationId = Objects.requireNonNull(githubApplicationId);
         this.privateKeySupplier = Objects.requireNonNull(privateKeySupplier);
+
+        this.headerSupplier = Suppliers.map(
+                Suppliers.memoizeWithExpiration(this::generateNewPayload, EXPIRATION_MINUTES, TimeUnit.MINUTES),
+                ApplicationKey::toAuthorizationHeader);
     }
 
-    public Supplier<String> getKeyHeaderSupplier() {
-        return Suppliers.map(getKeySupplier(), ApplicationKey::toAuthorizationHeader);
-    }
-
-    // TODO romeara Protected to allow access if needed, use case not certain for non-header value
-    protected Supplier<String> getKeySupplier() {
-        return Suppliers.memoizeWithExpiration(this::generateNewPayload, EXPIRATION_MINUTES, TimeUnit.MINUTES);
+    @Override
+    public String get() {
+        return headerSupplier.get();
     }
 
     private String generateNewPayload() {
