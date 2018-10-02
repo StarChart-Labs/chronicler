@@ -1,6 +1,3 @@
-include 'main.webapp'
-include 'integration.github'
-
 include 'events'
 include 'calamari-core'
 include 'github-model'
