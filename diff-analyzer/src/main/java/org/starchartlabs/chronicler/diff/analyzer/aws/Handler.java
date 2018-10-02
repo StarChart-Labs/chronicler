@@ -86,9 +86,9 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
         statusHandler.sendPending("Analysis in progress");
 
         try {
-            PullRequestAnalyzer analyzer = new PullRequestAnalyzer(event.getPullRequestUrl(), accessToken);
+            PullRequestAnalyzer analyzer = new PullRequestAnalyzer(accessToken);
 
-            AnalysisResults results = analyzer.analyze();
+            AnalysisResults results = analyzer.analyze(event.getPullRequestUrl());
 
             logger.info("Analysis results: prod: {}, rel: {}", results.isModifyingProductionFiles(),
                     results.isModifyingReleaseNotes());

@@ -45,6 +45,17 @@ public class AnalysisSettings {
         return releaseNoteFiles.matches(compare);
     }
 
+    public static AnalysisSettings defaultSettings() {
+        return AnalysisSettings.builder()
+                .includeProduction("**/src/**")
+                .excludeProduction("**/test/**")
+                .includeReleaseNotes("**/CHANGE*LOG*")
+                .includeReleaseNotes("**/RELEASE*NOTES*")
+                .build();
+    }
+
+    // TODO forRepository
+
     // TODO obj methods
 
     public static Builder builder() {
