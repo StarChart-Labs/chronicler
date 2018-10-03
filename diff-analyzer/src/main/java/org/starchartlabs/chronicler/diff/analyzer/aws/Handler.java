@@ -20,12 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.chronicler.calamari.core.auth.ApplicationKey;
-import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
-import org.starchartlabs.chronicler.diff.analyzer.AnalysisResults;
 import org.starchartlabs.chronicler.diff.analyzer.PullRequestAnalyzer;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
-import org.starchartlabs.chronicler.github.model.Requests;
-import org.starchartlabs.chronicler.github.model.pullrequest.StatusHandler;
 import org.starchartlabs.chronicler.machete.SecuredRsaKeyParameter;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -51,9 +47,10 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
     public Void handleRequest(SNSEvent input, Context context) {
         logger.trace("Received SNS event: " + input);
         ApplicationKey applicationKey = new ApplicationKey(APPLICATION_ID, getPrivateKeySupplier());
+        PullRequestAnalyzer analyzer = new PullRequestAnalyzer(applicationKey);
 
         getEvents(input).stream()
-        .forEach(event -> handleEvent(event, applicationKey));
+                .forEach(analyzer::analyze);
 
         return null;
     }
@@ -70,59 +67,6 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
     private Supplier<String> getPrivateKeySupplier() {
         return Suppliers.memoizeWithExpiration(SecuredRsaKeyParameter.fromEnv(PARAMETER_STORE_SECRET_KEY),
                 10, TimeUnit.MINUTES);
-    }
-
-    // TODO move out from handler
-    private void handleEvent(GitHubPullRequestEvent event, ApplicationKey applicationKey) {
-        logger.info("Processing pull request for {}", event.getLoggableRepositoryName());
-
-        InstallationAccessToken accessToken = InstallationAccessToken.forRepository(event.getBaseRepositoryUrl(),
-                applicationKey, Requests.USER_AGENT);
-
-        StatusHandler statusHandler = new StatusHandler("doc/chronicler", event.getPullRequestStatusesUrl(),
-                accessToken);
-
-        // Set pending status
-        statusHandler.sendPending("Analysis in progress");
-
-        try {
-            PullRequestAnalyzer analyzer = new PullRequestAnalyzer(accessToken);
-
-            AnalysisResults results = analyzer.analyze(event.getPullRequestUrl());
-
-            logger.info("Analysis results: prod: {}, rel: {}", results.isModifyingProductionFiles(),
-                    results.isModifyingReleaseNotes());
-
-            // Set resolution status
-            processResult(results, statusHandler);
-        } catch (Exception e) {
-            statusHandler.sendError("Error processing pull request files");
-
-            throw new RuntimeException("Error processing analysis results", e);
-        }
-
-
-    }
-
-    // TODO move out from handler
-    private void processResult(AnalysisResults results, StatusHandler statusHandler) {
-        String description = null;
-
-        if (results.isDocumented()) {
-            if (results.isModifyingProductionFiles()) {
-                description = "Release notes updated as required";
-            } else {
-                description = "No production files modified";
-            }
-        } else {
-            description = "Production files modified without release notes";
-        }
-
-        if (results.isDocumented()) {
-            statusHandler.sendSuccess(description);
-        } else {
-            statusHandler.sendFailure(description);
-        }
     }
 
     // TODO romeara Temporary until can figure out how to reference SSM in serverless.yml

@@ -7,7 +7,7 @@ We welcome any contributions! If you wish to contribute:
 - Run `./gradlew clean build` to confirm you are starting from a working Setup
  - Please report any issues with this build step in the GitHub project's issues
 - Create a branch for your work
-- Setup your deveopment environment (see below)
+- Setup your development environment (see below)
 - Make changes
 - Run `./gradlew clean build` to test your changes locally
 - Push your branch to your Fork
@@ -27,6 +27,8 @@ In general, pull requests should:
 - Have additions to the CHANGE_LOG.md file recording changed behavior
 
 ## Running Locally
+
+TODO Needs updating for AWS!
 
 If you wish to run the application yourself, you will have to setup a GitHub App. 
 
