@@ -10,11 +10,19 @@
  */
 package org.starchartlabs.chronicler.diff.analyzer;
 
-import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.starchartlabs.chronicler.github.model.PageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
+import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
+import org.starchartlabs.chronicler.github.model.PageReader;
+import org.starchartlabs.chronicler.github.model.Requests;
+import org.starchartlabs.chronicler.github.model.pullrequest.StatusHandler;
 
 import com.google.gson.JsonElement;
 
@@ -23,31 +31,74 @@ import okhttp3.HttpUrl;
 //https://developer.github.com/v3/pulls/#list-pull-requests-files
 public class PullRequestAnalyzer {
 
-    private final Supplier<String> accessTokenSupplier;
+    /** Logger reference to output information to the application log files */
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public PullRequestAnalyzer(Supplier<String> accessTokenSupplier) {
-        this.accessTokenSupplier = Objects.requireNonNull(accessTokenSupplier);
+    private final Supplier<String> applicationKey;
+
+    public PullRequestAnalyzer(Supplier<String> applicationKey) {
+        this.applicationKey = Objects.requireNonNull(applicationKey);
     }
 
-    public AnalysisResults analyze(String pullRequestUrl) {
+    public void analyze(GitHubPullRequestEvent event) {
+        logger.info("Processing pull request for {}", event.getLoggableRepositoryName());
+
+        InstallationAccessToken accessToken = InstallationAccessToken.forRepository(event.getBaseRepositoryUrl(),
+                applicationKey, Requests.USER_AGENT);
+
+        StatusHandler statusHandler = new StatusHandler("doc/chronicler", event.getPullRequestStatusesUrl(),
+                accessToken);
+
+        // Set pending status
+        statusHandler.sendPending("Analysis in progress");
+
         AnalysisSettings settings = AnalysisSettings.defaultSettings();
 
-        HttpUrl url = HttpUrl.get(pullRequestUrl).newBuilder()
+        HttpUrl url = HttpUrl.get(event.getPullRequestUrl()).newBuilder()
                 .addPathSegment("files")
                 .addQueryParameter("page", "1")
                 .addQueryParameter("per_page", "30")
                 .build();
 
         try {
-            FilePathAnalysis pathAnalysis = new PageHandler(accessTokenSupplier)
-                    .pageUntil(url.toString(), o -> toPathAnalysis(o, settings), FilePathAnalysis::isComplete,
-                            FilePathAnalysis::new)
+            // TODO test new paging
+            FilePathAnalysis pathAnalysis = new PageReader(accessToken).page(url.toString())
+                    .map(element -> toPathAnalysis(element, settings))
+                    .until(Collectors.reducing(FilePathAnalysis::new), this::reduce,
+                            o -> o.map(FilePathAnalysis::isComplete).orElse(false))
                     .orElse(new FilePathAnalysis());
 
-            return new AnalysisResults(pathAnalysis.containsProductionFiles(), pathAnalysis.containsReleaseNoteFiles());
-        } catch (IOException e) {
-            // TODO romeara Better handling?
-            throw new RuntimeException(e);
+            AnalysisResults results = new AnalysisResults(pathAnalysis.containsProductionFiles(),
+                    pathAnalysis.containsReleaseNoteFiles());
+
+            logger.info("Analysis results: prod: {}, rel: {}", results.isModifyingProductionFiles(),
+                    results.isModifyingReleaseNotes());
+
+            processResult(results, statusHandler);
+        } catch (Exception e) {
+            statusHandler.sendError("Error processing pull request files");
+
+            throw new RuntimeException("Error processing pull request files", e);
+        }
+    }
+
+    private void processResult(AnalysisResults results, StatusHandler statusHandler) {
+        String description = null;
+
+        if (results.isDocumented()) {
+            if (results.isModifyingProductionFiles()) {
+                description = "Release notes updated as required";
+            } else {
+                description = "No production files modified";
+            }
+        } else {
+            description = "Production files modified without release notes";
+        }
+
+        if (results.isDocumented()) {
+            statusHandler.sendSuccess(description);
+        } else {
+            statusHandler.sendFailure(description);
         }
     }
 
@@ -56,6 +107,13 @@ public class PullRequestAnalyzer {
         path = path.startsWith("/") ? path : "/" + path;
 
         return new FilePathAnalysis(settings, path);
+    }
+
+    private Optional<FilePathAnalysis> reduce(Optional<FilePathAnalysis> a, Optional<FilePathAnalysis> b) {
+        return Stream.of(a, b)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.reducing(FilePathAnalysis::new));
     }
 
     private static final class FilePathAnalysis {

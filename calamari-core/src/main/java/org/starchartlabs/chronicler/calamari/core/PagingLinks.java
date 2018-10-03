@@ -41,6 +41,8 @@ public class PagingLinks {
 
     private final Optional<String> lastPageUrl;
 
+    // TODO romeara - maybe pass in url with the links, and filter the next URL at creation here? so can just have the
+    // "next" url field, and that's it?
     public PagingLinks(Collection<String> links) {
         Objects.requireNonNull(links);
         logger.debug("GitHub Paging Headers: {}", links);
@@ -78,9 +80,9 @@ public class PagingLinks {
         return lastPageUrl;
     }
 
-    public boolean isEmpty() {
-        return !getNextPageUrl().isPresent()
-                && !getLastPageUrl().isPresent();
+    public boolean hasNextPage(String url) {
+        return getNextPageUrl().isPresent()
+                && !isLastPage(url);
     }
 
     public boolean isLastPage(@Nullable String url) {
