@@ -39,6 +39,13 @@ If you discover a security vulnerability, contact the development team by e-mail
 
 ### TODO
 
+NOTE: TO run serverless deployment, you must npm install a couple serverless plug-ins, as well as serverless itself:
+
+```
+npm install --save-dev serverless-iam-roles-per-function
+npm install --save-dev serverless-aws-alias
+```
+
 - Further narrow serverless user permissions, different users for dev, valid (cd) and production
 - service telemetry (newrelic-style info) on aws
 - usage alerts

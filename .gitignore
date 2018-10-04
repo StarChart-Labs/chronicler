@@ -4,3 +4,4 @@
 /.project
 /build/
 /.serverless/
+/node_modules/
