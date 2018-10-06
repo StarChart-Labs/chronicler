@@ -10,9 +10,20 @@
  */
 package org.starchartlabs.chronicler.calamari.core;
 
-//TODO romeara
+/**
+ * Represents various data format identifiers which may be sent or requested to/from GitHub via Accept/Content-Type
+ * headers in web requests
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
 public final class MediaTypes {
 
+    /**
+     * Media type used by GitHub app's during the preview period
+     * 
+     * @since 0.1.0
+     */
     public static final String APP_PREVIEW = "application/vnd.github.machine-man-preview+json";
 
     /**
