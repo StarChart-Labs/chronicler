@@ -12,12 +12,12 @@ package org.starchartlabs.chronicler.diff.analyzer;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.starchartlabs.chronicler.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.PageReader;
@@ -34,9 +34,9 @@ public class PullRequestAnalyzer {
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Supplier<String> applicationKey;
+    private final ApplicationKey applicationKey;
 
-    public PullRequestAnalyzer(Supplier<String> applicationKey) {
+    public PullRequestAnalyzer(ApplicationKey applicationKey) {
         this.applicationKey = Objects.requireNonNull(applicationKey);
     }
 

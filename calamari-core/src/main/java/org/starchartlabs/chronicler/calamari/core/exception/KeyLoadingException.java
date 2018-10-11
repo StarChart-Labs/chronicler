@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) Oct 9, 2018 StarChart Labs Authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    romeara - initial API and implementation and/or initial documentation
+ */
+package org.starchartlabs.chronicler.calamari.core.exception;
+
+/**
+ * Represents an error during the process of generating keys for authentication in GitHub web requests
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
+public class KeyLoadingException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * @param message
+     *            Description of the exceptional condition which could not be recovered from
+     * @since 0.1.0
+     */
+    public KeyLoadingException(String message) {
+        super(message);
+    }
+
+    /**
+     * @param message
+     *            Description of the exceptional condition which could not be recovered from
+     * @param cause
+     *            The root cause of the error
+     * @since 0.1.0
+     */
+    public KeyLoadingException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+}
