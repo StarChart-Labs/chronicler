@@ -27,29 +27,55 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.starchartlabs.alloy.core.Strings;
 import org.starchartlabs.alloy.core.Suppliers;
+import org.starchartlabs.chronicler.calamari.core.exception.KeyLoadingException;
 
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+//TODO romeara test
+/**
+ * Represents an authentication key used to validate web requests to GitHub as a
+ * <a href="https://developer.github.com/apps/">GitHub App</a>
+ *
+ * <p>
+ * Handles logic for reading a private (signing) key, signing a JWT token, and caching that token until it has expired,
+ * as described in <a href=
+ * "https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app">authenticating
+ * as a GitHub App</a>
+ *
+ * <p>
+ * Uses Java {@link Supplier} pattern to allow re-generation of tokens as needed
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
 public class ApplicationKey implements Supplier<String> {
 
-    // The maximum is 10, allow for some drift
+    // The maximum is 10, include a tolerance to reduce caching error potential
     private static final int EXPIRATION_MINUTES = 9;
 
-    // Support necessary security
+    // Add security provider required for reading and using the private key which signed tokens
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    private final String githubApplicationId;
+    private final String githubAppId;
 
     private final Supplier<String> privateKeySupplier;
 
     private final Supplier<String> headerSupplier;
 
-    public ApplicationKey(String githubApplicationId, Supplier<String> privateKeySupplier) {
-        this.githubApplicationId = Objects.requireNonNull(githubApplicationId);
+    /**
+     * @param githubAppId
+     *            Unique identifier provided by GitHub for the App
+     * @param privateKeySupplier
+     *            Supplier which allows lookup of the private (signing) key issued by GitHub for creating JWT tokens
+     *            used in web requests
+     * @since 0.1.0
+     */
+    public ApplicationKey(String githubAppId, Supplier<String> privateKeySupplier) {
+        this.githubAppId = Objects.requireNonNull(githubAppId);
         this.privateKeySupplier = Objects.requireNonNull(privateKeySupplier);
 
         this.headerSupplier = Suppliers.map(
@@ -57,12 +83,25 @@ public class ApplicationKey implements Supplier<String> {
                 ApplicationKey::toAuthorizationHeader);
     }
 
+    /**
+     * @return Authorization header value to authenticate as a GitHub App
+     * @throws KeyLoadingException
+     *             If the is an error reading the signing key prior to use
+     * @since 0.1.0
+     */
     @Override
-    public String get() {
+    public String get() throws KeyLoadingException {
         return headerSupplier.get();
     }
 
-    private String generateNewPayload() {
+    /**
+     * Generates a new JWT token from the private (signing) key reference and application ID
+     *
+     * @return Generated JWT valid for up to ten minutes after this function is called
+     * @throws KeyLoadingException
+     *             If the is an error reading the signing key prior to use
+     */
+    private String generateNewPayload() throws KeyLoadingException {
         String privateKey = privateKeySupplier.get();
 
         try (PEMReader r = new PEMReader(new StringReader(privateKey))) {
@@ -70,27 +109,36 @@ public class ApplicationKey implements Supplier<String> {
             Key key = keyPair.getPrivate();
 
             ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
-            ZonedDateTime expiration = now.plusMinutes(EXPIRATION_MINUTES);
+            ZonedDateTime expiration = now.plusMinutes(Math.min(EXPIRATION_MINUTES + 1, 10));
 
             JwtBuilder builder = Jwts.builder().setId(null)
                     .setIssuedAt(toDate(now))
                     .setExpiration(toDate(expiration))
-                    .setIssuer(githubApplicationId)
+                    .setIssuer(githubAppId)
                     .signWith(SignatureAlgorithm.RS256, key);
 
             return builder.compact();
         } catch (IOException e) {
-            // TODO romeara - better way to handle this?
-            throw new RuntimeException("Error obtaining application authenitcation token", e);
+            throw new KeyLoadingException("Error reading signing key", e);
         }
     }
 
+    /**
+     * @param jwt
+     *            JWT token to use in requests to GitHub for authorization as a GitHub App
+     * @return Value for the {@code Authorization} header of HTTP requests to authorize with the application key
+     */
     private static String toAuthorizationHeader(String jwt) {
         Objects.requireNonNull(jwt);
 
         return Strings.format("Bearer %s", jwt);
     }
 
+    /**
+     * @param input
+     *            A {@link ZonedDateTime} representation to convert to a legacy representation
+     * @return A legacy {@link Date} representation for use with a JWT token builder
+     */
     private static Date toDate(ZonedDateTime input) {
         Objects.requireNonNull(input);
         Instant instant = input.toInstant();

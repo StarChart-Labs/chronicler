@@ -22,7 +22,7 @@ import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.chronicler.calamari.core.MediaTypes;
-import org.starchartlabs.chronicler.calamari.core.PagingLinks;
+import org.starchartlabs.chronicler.calamari.core.paging.PagingLinks;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,6 +33,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+//TODO romeara move to calamari?
+//TODO romeara - possibly re-implement as a spliterator implementation so real streams can be used?
 public class PageReader {
 
     private final Supplier<String> authorizationHeader;
@@ -66,46 +68,55 @@ public class PageReader {
             return new PageStream<>(url, this.mapper.andThen(mapper), authorizationHeader);
         }
 
-        public <R> R all(Collector<? super T, ?, R> collector, BinaryOperator<R> reducer) throws IOException {
-            return getPages(collector, reducer, a -> false);
+        // TODO try reducer-less design
+        public <A, R> R all(Collector<? super T, A, R> collector, BinaryOperator<R> reducer) throws IOException {
+            return getPages(collector, a -> false);
         }
 
-        public <R> R until(Collector<? super T, ?, R> collector, BinaryOperator<R> reducer, Predicate<R> until)
+        public <A, R> R until(Collector<? super T, A, R> collector, BinaryOperator<R> reducer, Predicate<R> until)
                 throws IOException {
-            return getPages(collector, reducer, until);
+            return getPages(collector, until);
         }
 
         // TODO romeara separated like this to allow override, using other clients - should this be separated
         // differently? Should JsonElement also be extracted out?
-        protected <R> R getPages(Collector<? super T, ?, R> collector, BinaryOperator<R> reducer, Predicate<R> until)
-                throws IOException {
+        protected <A, R> R getPages(Collector<? super T, A, R> collector, Predicate<R> until) throws IOException {
+            // TODO romeara - use the split collector to prevent need for reducer?
+            Collector<? super T, A, A> ongoingCollector = Collector.of(collector.supplier(),
+                    collector.accumulator(),
+                    collector.combiner());
+            Function<A, R> converter = collector.finisher();
+
             OkHttpClient httpClient = new OkHttpClient();
             Gson gson = new GsonBuilder().create();
             HttpUrl nextUrl = HttpUrl.get(url);
             int pagesRead = 0;
 
+            A combinedResult = null;
+            A currentPageResult = null;
+
             // First request, which initializes the paging links
             Response response = getResponse(httpClient, nextUrl, authorizationHeader);
 
-            PagingLinks pagingLinks = new PagingLinks(response.headers("Link"));
-            R result = getBody(gson, response.body().string(), mapper, collector);
-            pagesRead++;
+            PagingLinks pagingLinks = new PagingLinks(nextUrl.toString(), response.headers("Link"));
+            currentPageResult = getBody(gson, response.body().string(), mapper, ongoingCollector);
+            combinedResult = currentPageResult;
 
-            while (!until.test(result) && pagingLinks.hasNextPage(nextUrl.toString())) {
+            while (!until.test(converter.apply(currentPageResult)) && pagingLinks.getNextPageUrl().isPresent()) {
                 nextUrl = HttpUrl.get(pagingLinks.getNextPageUrl().get());
                 response = getResponse(httpClient, nextUrl, authorizationHeader);
 
-                pagingLinks = new PagingLinks(response.headers("Link"));
-                R newResult = getBody(gson, response.body().string(), mapper, collector);
+                pagingLinks = new PagingLinks(nextUrl.toString(), response.headers("Link"));
+                currentPageResult = getBody(gson, response.body().string(), mapper, ongoingCollector);
                 pagesRead++;
 
-                result = reducer.apply(result, newResult);
+                combinedResult = ongoingCollector.combiner().apply(combinedResult, currentPageResult);
             }
 
-            // TODO romeara reduce loggin level once comfirmed working
+            // TODO romeara reduce logging level once confirmed working
             logger.info("Read {} pages", pagesRead);
 
-            return result;
+            return converter.apply(combinedResult);
         }
 
         private Response getResponse(OkHttpClient httpClient, HttpUrl url, Supplier<String> authorizationHeader)
