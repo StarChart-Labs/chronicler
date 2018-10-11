@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -33,7 +34,6 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-//TODO romeara test
 /**
  * Represents an authentication key used to validate web requests to GitHub as a
  * <a href="https://developer.github.com/apps/">GitHub App</a>
@@ -105,7 +105,9 @@ public class ApplicationKey implements Supplier<String> {
         String privateKey = privateKeySupplier.get();
 
         try (PEMReader r = new PEMReader(new StringReader(privateKey))) {
-            KeyPair keyPair = (KeyPair) r.readObject();
+            KeyPair keyPair = Optional.ofNullable((KeyPair) r.readObject())
+                    .orElseThrow(() -> new KeyLoadingException(
+                            "Unable to parse valid private key data from provided content"));
             Key key = keyPair.getPrivate();
 
             ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);

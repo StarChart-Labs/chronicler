@@ -30,7 +30,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-//TODO romeara
 /**
  * Represents an access token used to validate web requests to GitHub as a
  * <a href="https://developer.github.com/v3/apps/installations/">GitHub App installation</a>

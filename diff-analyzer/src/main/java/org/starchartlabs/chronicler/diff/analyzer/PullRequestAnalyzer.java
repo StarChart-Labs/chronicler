@@ -11,16 +11,14 @@
 package org.starchartlabs.chronicler.diff.analyzer;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.chronicler.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
+import org.starchartlabs.chronicler.calamari.core.paging.PageReader;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
-import org.starchartlabs.chronicler.github.model.PageReader;
 import org.starchartlabs.chronicler.github.model.Requests;
 import org.starchartlabs.chronicler.github.model.pullrequest.StatusHandler;
 
@@ -61,10 +59,9 @@ public class PullRequestAnalyzer {
                 .build();
 
         try {
-            // TODO test new paging
-            FilePathAnalysis pathAnalysis = new PageReader(accessToken).page(url.toString())
-                    .map(element -> toPathAnalysis(element, settings))
-                    .until(Collectors.reducing(FilePathAnalysis::new), this::reduce,
+            FilePathAnalysis pathAnalysis = new PageReader(accessToken, Requests.USER_AGENT).page(url.toString())
+                    .map(element -> new FilePathAnalysis(settings, element))
+                    .until(Collectors.reducing(FilePathAnalysis::new),
                             o -> o.map(FilePathAnalysis::isComplete).orElse(false))
                     .orElse(new FilePathAnalysis());
 
@@ -102,20 +99,6 @@ public class PullRequestAnalyzer {
         }
     }
 
-    private FilePathAnalysis toPathAnalysis(JsonElement element, AnalysisSettings settings) {
-        String path = element.getAsJsonObject().get("filename").getAsString();
-        path = path.startsWith("/") ? path : "/" + path;
-
-        return new FilePathAnalysis(settings, path);
-    }
-
-    private Optional<FilePathAnalysis> reduce(Optional<FilePathAnalysis> a, Optional<FilePathAnalysis> b) {
-        return Stream.of(a, b)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.reducing(FilePathAnalysis::new));
-    }
-
     private static final class FilePathAnalysis {
 
         private final boolean production;
@@ -126,9 +109,12 @@ public class PullRequestAnalyzer {
             this(false, false);
         }
 
-        public FilePathAnalysis(AnalysisSettings settings, String path) {
+        public FilePathAnalysis(AnalysisSettings settings, JsonElement element) {
             Objects.requireNonNull(settings);
-            Objects.requireNonNull(path);
+            Objects.requireNonNull(element);
+
+            String path = element.getAsJsonObject().get("filename").getAsString();
+            path = path.startsWith("/") ? path : "/" + path;
 
             this.production = settings.isProductionFile(path);
             this.releaseNote = settings.isReleaseNoteFile(path);

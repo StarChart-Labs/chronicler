@@ -8,4 +8,7 @@ dependencies {
     compile 'org.bouncycastle:bcprov-jdk16'
     compile 'org.slf4j:slf4j-api'
     compile 'org.starchartlabs.alloy:alloy-core'
+    
+    testCompile 'com.squareup.okhttp3:mockwebserver'
+    testCompile 'org.testng:testng'
 }

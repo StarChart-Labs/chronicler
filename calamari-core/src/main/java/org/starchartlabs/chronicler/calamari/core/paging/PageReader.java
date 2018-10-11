@@ -8,11 +8,10 @@
  * Contributors:
  *    romeara - initial API and implementation and/or initial documentation
  */
-package org.starchartlabs.chronicler.github.model;
+package org.starchartlabs.chronicler.calamari.core.paging;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -22,7 +21,6 @@ import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.chronicler.calamari.core.MediaTypes;
-import org.starchartlabs.chronicler.calamari.core.paging.PagingLinks;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,12 +37,15 @@ public class PageReader {
 
     private final Supplier<String> authorizationHeader;
 
-    public PageReader(Supplier<String> authorizationHeader) {
+    private final String userAgent;
+
+    public PageReader(Supplier<String> authorizationHeader, String userAgent) {
         this.authorizationHeader = Objects.requireNonNull(authorizationHeader);
+        this.userAgent = Objects.requireNonNull(userAgent);
     }
 
     public PageStream<JsonElement> page(String url) {
-        return new PageStream<>(url, Function.identity(), authorizationHeader);
+        return new PageStream<>(url, userAgent, Function.identity(), authorizationHeader);
     }
 
     public static class PageStream<T> {
@@ -54,26 +55,30 @@ public class PageReader {
 
         private final String url;
 
+        private final String userAgent;
+
         private final Function<JsonElement, T> mapper;
 
         private final Supplier<String> authorizationHeader;
 
-        protected PageStream(String url, Function<JsonElement, T> mapper, Supplier<String> authorizationHeader) {
+        protected PageStream(String url, String userAgent, Function<JsonElement, T> mapper,
+                Supplier<String> authorizationHeader) {
             this.url = Objects.requireNonNull(url);
+            this.userAgent = Objects.requireNonNull(userAgent);
             this.mapper = Objects.requireNonNull(mapper);
             this.authorizationHeader = Objects.requireNonNull(authorizationHeader);
         }
 
         public <S> PageStream<S> map(Function<T, S> mapper) {
-            return new PageStream<>(url, this.mapper.andThen(mapper), authorizationHeader);
+            return new PageStream<>(url, userAgent, this.mapper.andThen(mapper), authorizationHeader);
         }
 
         // TODO try reducer-less design
-        public <A, R> R all(Collector<? super T, A, R> collector, BinaryOperator<R> reducer) throws IOException {
+        public <A, R> R all(Collector<? super T, A, R> collector) throws IOException {
             return getPages(collector, a -> false);
         }
 
-        public <A, R> R until(Collector<? super T, A, R> collector, BinaryOperator<R> reducer, Predicate<R> until)
+        public <A, R> R until(Collector<? super T, A, R> collector, Predicate<R> until)
                 throws IOException {
             return getPages(collector, until);
         }
@@ -121,7 +126,8 @@ public class PageReader {
 
         private Response getResponse(OkHttpClient httpClient, HttpUrl url, Supplier<String> authorizationHeader)
                 throws IOException {
-            Request request = Requests.newRequest()
+            Request request = new Request.Builder()
+                    .header("User-Agent", userAgent)
                     .get()
                     .header("Accept", MediaTypes.APP_PREVIEW)
                     .header("Authorization", authorizationHeader.get())
