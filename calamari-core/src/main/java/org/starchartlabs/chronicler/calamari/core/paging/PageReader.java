@@ -103,17 +103,22 @@ public class PageReader {
             // First request, which initializes the paging links
             Response response = getResponse(httpClient, nextUrl, authorizationHeader);
 
-            PagingLinks pagingLinks = new PagingLinks(nextUrl.toString(), response.headers("Link"));
+            PagingLinks pagingLinks = new PagingLinks(response.headers("Link"));
             currentPageResult = getBody(gson, response.body().string(), mapper, ongoingCollector);
+            pagesRead++;
             combinedResult = currentPageResult;
+
+            logger.info("Paging links: {}", response.headers("Link"));
 
             while (!until.test(converter.apply(currentPageResult)) && pagingLinks.getNextPageUrl().isPresent()) {
                 nextUrl = HttpUrl.get(pagingLinks.getNextPageUrl().get());
                 response = getResponse(httpClient, nextUrl, authorizationHeader);
 
-                pagingLinks = new PagingLinks(nextUrl.toString(), response.headers("Link"));
+                pagingLinks = new PagingLinks(response.headers("Link"));
                 currentPageResult = getBody(gson, response.body().string(), mapper, ongoingCollector);
                 pagesRead++;
+
+                logger.info("Paging links: {}", response.headers("Link"));
 
                 combinedResult = ongoingCollector.combiner().apply(combinedResult, currentPageResult);
             }
