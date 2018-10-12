@@ -22,7 +22,6 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.codec.digest.HmacUtils;
 
-// TODO romeara test
 /**
  * Provides behavior to verify the source of a webhook event payload
  *
