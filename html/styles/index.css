@@ -64,6 +64,14 @@ a.button {
     padding: 5px 10px;
 }
 
+#footer {
+    position: absolute;
+    width: 100%;
+    bottom: 25px;
+    font-size: 0.9rem;
+    font-family: sans-serif;
+}
+
 /*
  From "GitHub Corners":
     http://tholman.com/github-corners/
