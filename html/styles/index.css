@@ -16,7 +16,7 @@ a:active {
 }
 
 #header {
-    margin: 0 auto 30px auto;
+    margin: 0 auto 40px auto;
     width: 100%;
     background-color: #c4b097;
     color: #594938;
@@ -50,7 +50,7 @@ a:active {
     font-family: sans-serif;
 }
 #body img {
-    margin-top: 20px;
+    margin-top: 30px;
 }
 #body p {
     margin-top: 15px;
@@ -59,9 +59,10 @@ a:active {
 a.button {
     color: white;
     text-decoration: none;
+    font-weight: bold;
     background-color: #6d6f88;
-    font-size: 1.1rem;
-    padding: 5px 10px;
+    font-size: 1.3rem;
+    padding: 7px 15px;
 }
 
 #footer {
