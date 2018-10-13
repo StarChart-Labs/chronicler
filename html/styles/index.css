@@ -1,7 +1,9 @@
 body {
-    background-color: #c4b097;
+    background-color: white;
     color: #594938;
     text-align: center;
+    padding: 0;
+    margin: 0;
 }
 
 a {
@@ -14,18 +16,38 @@ a:active {
 }
 
 #header {
-    margin: 30px auto;
+    margin: 0 auto 30px auto;
     width: 100%;
+    background-color: #c4b097;
+    color: #594938;
+    position: relative;
 }
 #header img {
+    padding-top: 25px;
     max-width: 500px;
 }
 #header p {
     font-size: 1.5rem;
+    padding-bottom: 30px;
+}
+#header:after {
+    /*
+     Borrowed from awesome "Ripped Paper Effect" Codepen:
+        https://codepen.io/dsm-webdsigner/pen/dYBRYw
+     By Makonnen Dos Santos
+    */
+    content: ""; height: 5px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    -webkit-clip-path: polygon(0% 0%, 5%  100%, 10% 0%, 15%  100%, 20% 0%, 25% 100%, 30% 0%, 35%  100%, 40% 0%, 45%  100%, 50% 0%, 55%  100%, 60% 0%, 65%  100%, 70% 0%, 75%  100%, 80% 0%, 85%  100%, 90% 0%, 95%  100%, 100% 0%);
+    background-color: #c4b097;
+    bottom: -4px;
 }
 
 #body {
     font-size: 1.3rem;
+    font-family: sans-serif;
 }
 #body img {
     margin-top: 20px;
@@ -40,4 +62,26 @@ a.button {
     background-color: #6d6f88;
     font-size: 1.1rem;
     padding: 5px 10px;
+}
+
+/*
+ From "GitHub Corners":
+    http://tholman.com/github-corners/
+ by Tim Holman
+*/
+.github-corner:hover .octo-arm {
+    animation:octocat-wave 560ms ease-in-out
+}
+@keyframes octocat-wave {
+    0%,100% { transform:rotate(0) }
+    20%,60% { transform:rotate(-25deg) }
+    40%,80% { transform:rotate(10deg)}
+}
+@media (max-width:500px) {
+    .github-corner:hover .octo-arm {
+        animation:none
+    }
+    .github-corner .octo-arm {
+        animation:octocat-wave 560ms ease-in-out
+    }
 }
