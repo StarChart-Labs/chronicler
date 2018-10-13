@@ -1,0 +1,43 @@
+body {
+    background-color: #c4b097;
+    color: #594938;
+    text-align: center;
+}
+
+a {
+    color: #4d7260;
+}
+a:visited,
+a:hover,
+a:active {
+    color: #2c4b3c;
+}
+
+#header {
+    margin: 30px auto;
+    width: 100%;
+}
+#header img {
+    max-width: 500px;
+}
+#header p {
+    font-size: 1.5rem;
+}
+
+#body {
+    font-size: 1.3rem;
+}
+#body img {
+    margin-top: 20px;
+}
+#body p {
+    margin-top: 15px;
+}
+
+a.button {
+    color: white;
+    text-decoration: none;
+    background-color: #6d6f88;
+    font-size: 1.1rem;
+    padding: 5px 10px;
+}
