@@ -91,3 +91,20 @@ functions:
         #GITHUB_APP_ID: ${ssm:/${self:provider.stage}/${self:service}/github/app/id}
     events:
         - sns: ${self:custom.topic.diff}
+        
+# TODO Upload file to created bucket
+resources:
+  Resources:
+    UploadBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: "${self:service}-${self:provider.stage}-statichomepagebucket"
+        AccessControl: PublicRead
+        CorsConfiguration:
+          CorsRules:
+          - AllowedMethods:
+            - GET
+            AllowedOrigins:
+            - "*"
+            AllowedHeaders:
+            - "*"
