@@ -12,10 +12,13 @@
 #    Allows inheriting default IAM settings from the provider layer, and specifying more specific permissions per function without repeating common
 # serverless-domain-manager: https://github.com/amplify-education/serverless-domain-manager
 #    Allows setting up a custom domain name (*.starchartlabs.org) for the generated API. This first requires generating an ACM cert for the domain
+# serverless-s3-deploy
+#    Allows integrated deployment of files to S3 buckets
 
 plugins:
   - serverless-iam-roles-per-function
   - serverless-domain-manager
+  - serverless-s3-deploy
 
 service: chronicler
 
@@ -42,6 +45,17 @@ custom:
     basePath: ''
     certificateName: '*.starchartlabs.org'
     createRoute53Record: false
+  assets:
+    auto: true
+    targets:
+      - bucket:
+          Ref: UploadBucket
+        files:
+          - source: html/
+            globs: 
+              - 'dev.html'
+              - '**/images/*.png'
+              - '**/styles/*.css'
 
 
 package:
