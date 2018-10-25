@@ -52,10 +52,11 @@ custom:
           Ref: UploadBucket
         files:
           - source: html/
+            empty: true
             globs: 
-              - 'dev.html'
-              - '**/images/*.png'
-              - '**/styles/*.css'
+              - '${self:provider.stage}.html'
+              - '**/images/**/*'
+              - '**/styles/**/*'
 
 
 package:
