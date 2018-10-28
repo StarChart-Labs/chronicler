@@ -1,6 +1,6 @@
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
-    compile project(':calamari-core')
+    compile project(':calamari-additions')
     
     compile 'com.google.code.findbugs:jsr305'
     compile 'com.google.code.gson:gson'

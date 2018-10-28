@@ -1,5 +1,5 @@
 include 'events'
-include 'calamari-core'
+include 'calamari-additions'
 include 'github-model'
 include 'machete'
 include 'webhook-handler'
