@@ -51,10 +51,10 @@ custom:
       - bucket:
           Ref: UploadBucket
         files:
-          - source: html/
+          - source: html/${self:provider.stage}
             empty: true
             globs: 
-              - '${self:provider.stage}.html'
+              - 'index.html'
               - '**/images/**/*'
               - '**/styles/**/*'
 
@@ -107,7 +107,11 @@ functions:
     events:
         - sns: ${self:custom.topic.diff}
         
-# TODO Upload file to created bucket
+# TODO Credentials ARN includes hard-coded account ID
+
+# Creation of this based on various doc:
+# https://cloudncode.blog/2017/08/08/tidbit-api-gateway-as-a-s3-proxy-cloudformation-script-with-serverless-framework/
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html
 resources:
   Resources:
     UploadBucket:
@@ -123,3 +127,47 @@ resources:
             - "*"
             AllowedHeaders:
             - "*"
+    ReadS3Role:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: ${self:service}-${self:provider.stage}-us-east-1-readS3Role
+        Path: /
+        AssumeRolePolicyDocument: 
+          Version: '2012-10-17'
+          Statement: 
+            - Effect: Allow
+              Principal:
+                Service:
+                  - s3.amazonaws.com
+                  - apigateway.amazonaws.com
+              Action: 
+                - sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+          - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+    StaticSiteEndpoint:
+      Type: "AWS::ApiGateway::Method"
+      Properties:
+        ApiKeyRequired: false
+        AuthorizationType: NONE
+        HttpMethod: GET
+        Integration:
+          Credentials: arn:aws:iam::895508338844:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          IntegrationHttpMethod: GET
+          IntegrationResponses:
+            - StatusCode: 200
+              ResponseParameters:
+                method.response.header.Content-Type: "'text/html'"
+          PassthroughBehavior: WHEN_NO_MATCH
+          Type: AWS
+          Uri: arn:aws:apigateway:us-east-1:s3:path/${self:service}-${self:provider.stage}-statichomepagebucket/index.html
+        MethodResponses:
+          - StatusCode: 200
+            ResponseParameters:
+                method.response.header.Content-Type: 'text/html'
+        ResourceId:
+          Fn::GetAtt: 
+            - "ApiGatewayRestApi"
+            - "RootResourceId"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
