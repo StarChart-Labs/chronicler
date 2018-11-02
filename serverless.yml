@@ -16,12 +16,15 @@
 #    Allows integrated deployment of files to S3 buckets
 # serverless-apigw-binary
 #    Allows configuration of returning binary media types from API gateway
+# serverless-pseudo-parameters
+#    Allows use of AWS variables in configuration
 
 plugins:
   - serverless-iam-roles-per-function
   - serverless-domain-manager
   - serverless-s3-deploy
   - serverless-apigw-binary
+  - serverless-pseudo-parameters
 
 service: chronicler
 
@@ -113,8 +116,6 @@ functions:
         #GITHUB_APP_ID: ${ssm:/${self:provider.stage}/${self:service}/github/app/id}
     events:
         - sns: ${self:custom.topic.diff}
-        
-# TODO Credentials ARN includes hard-coded account ID
 
 # Creation of this based on various doc:
 # https://cloudncode.blog/2017/08/08/tidbit-api-gateway-as-a-s3-proxy-cloudformation-script-with-serverless-framework/
@@ -159,7 +160,7 @@ resources:
         AuthorizationType: NONE
         HttpMethod: GET
         Integration:
-          Credentials: arn:aws:iam::895508338844:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          Credentials: arn:aws:iam::#{AWS::AccountId}:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
           IntegrationHttpMethod: GET
           IntegrationResponses:
             - StatusCode: 200
@@ -213,7 +214,7 @@ resources:
         RequestParameters:
             method.request.path.image: true
         Integration:
-          Credentials: arn:aws:iam::895508338844:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          Credentials: arn:aws:iam::#{AWS::AccountId}:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
           ContentHandling: CONVERT_TO_BINARY
           IntegrationHttpMethod: GET
           RequestParameters:
@@ -260,7 +261,7 @@ resources:
         RequestParameters:
             method.request.path.style: true
         Integration:
-          Credentials: arn:aws:iam::895508338844:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          Credentials: arn:aws:iam::#{AWS::AccountId}:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
           ContentHandling: CONVERT_TO_TEXT
           IntegrationHttpMethod: GET
           RequestParameters:
