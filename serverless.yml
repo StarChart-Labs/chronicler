@@ -54,6 +54,7 @@ custom:
   apigwBinary:
     types:
       - 'image/png'
+      - 'image/*'
       - 'text/html'
   assets:
     auto: true
