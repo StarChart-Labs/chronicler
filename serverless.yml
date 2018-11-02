@@ -14,11 +14,14 @@
 #    Allows setting up a custom domain name (*.starchartlabs.org) for the generated API. This first requires generating an ACM cert for the domain
 # serverless-s3-deploy
 #    Allows integrated deployment of files to S3 buckets
+# serverless-apigw-binary
+#    Allows configuration of returning binary media types from API gateway
 
 plugins:
   - serverless-iam-roles-per-function
   - serverless-domain-manager
   - serverless-s3-deploy
+  - serverless-apigw-binary
 
 service: chronicler
 
@@ -45,16 +48,20 @@ custom:
     basePath: ''
     certificateName: '*.starchartlabs.org'
     createRoute53Record: false
+  apigwBinary:
+    types:
+      - 'image/png'
+      - 'text/html'
   assets:
     auto: true
     targets:
       - bucket:
           Ref: UploadBucket
         files:
-          - source: html/${self:provider.stage}
+          - source: html/
             empty: true
             globs: 
-              - 'index.html'
+              - '${self:provider.stage}.html'
               - '**/images/**/*'
               - '**/styles/**/*'
 
@@ -160,7 +167,7 @@ resources:
                 method.response.header.Content-Type: "'text/html'"
           PassthroughBehavior: WHEN_NO_MATCH
           Type: AWS
-          Uri: arn:aws:apigateway:us-east-1:s3:path/${self:service}-${self:provider.stage}-statichomepagebucket/index.html
+          Uri: arn:aws:apigateway:us-east-1:s3:path/${self:service}-${self:provider.stage}-statichomepagebucket/${self:provider.stage}.html
         MethodResponses:
           - StatusCode: 200
             ResponseParameters:
@@ -171,3 +178,97 @@ resources:
             - "RootResourceId"
         RestApiId:
           Ref: "ApiGatewayRestApi"
+    ImageList: 
+      Type: "AWS::ApiGateway::Resource"
+      Properties: 
+        RestApiId: 
+          Ref: "ApiGatewayRestApi"
+        ParentId: 
+          Fn::GetAtt: 
+            - "ApiGatewayRestApi"
+            - "RootResourceId"
+        PathPart: "images"
+    Image: 
+      Type: "AWS::ApiGateway::Resource"
+      Properties: 
+        RestApiId: 
+          Ref: "ApiGatewayRestApi"
+        ParentId: 
+          Ref: "ImageList"
+        PathPart: "{image}"
+    ImageGet:
+      Type: "AWS::ApiGateway::Method"
+      Properties:
+        ResourceId:
+           Ref: "Image"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+        ApiKeyRequired: false
+        AuthorizationType: NONE
+        HttpMethod: GET
+        MethodResponses:
+          - StatusCode: 200
+            ResponseParameters:
+                method.response.header.Content-Type: "'image/png'"
+        RequestParameters:
+            method.request.path.image: true
+        Integration:
+          Credentials: arn:aws:iam::895508338844:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          ContentHandling: CONVERT_TO_BINARY
+          IntegrationHttpMethod: GET
+          RequestParameters:
+            integration.request.path.image: method.request.path.image
+          IntegrationResponses:
+            - StatusCode: 200
+              ResponseParameters:
+                method.response.header.Content-Type: "'image/png'"
+          PassthroughBehavior: WHEN_NO_MATCH
+          Type: AWS
+          Uri: arn:aws:apigateway:us-east-1:s3:path/${self:service}-${self:provider.stage}-statichomepagebucket/images/{image}
+    StyleList: 
+      Type: "AWS::ApiGateway::Resource"
+      Properties: 
+        RestApiId: 
+          Ref: "ApiGatewayRestApi"
+        ParentId: 
+          Fn::GetAtt: 
+            - "ApiGatewayRestApi"
+            - "RootResourceId"
+        PathPart: "styles"
+    Style: 
+      Type: "AWS::ApiGateway::Resource"
+      Properties: 
+        RestApiId: 
+          Ref: "ApiGatewayRestApi"
+        ParentId: 
+          Ref: "StyleList"
+        PathPart: "{style}"
+    StyleGet:
+      Type: "AWS::ApiGateway::Method"
+      Properties:
+        ResourceId:
+           Ref: "Style"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+        ApiKeyRequired: false
+        AuthorizationType: NONE
+        HttpMethod: GET
+        MethodResponses:
+          - StatusCode: 200
+            ResponseParameters:
+                method.response.header.Content-Type: "'text/css'"
+        RequestParameters:
+            method.request.path.style: true
+        Integration:
+          Credentials: arn:aws:iam::895508338844:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          ContentHandling: CONVERT_TO_TEXT
+          IntegrationHttpMethod: GET
+          RequestParameters:
+            integration.request.path.style: method.request.path.style
+          IntegrationResponses:
+            - StatusCode: 200
+              ResponseParameters:
+                method.response.header.Content-Type: "'text/css'"
+          PassthroughBehavior: WHEN_NO_MATCH
+          Type: AWS
+          Uri: arn:aws:apigateway:us-east-1:s3:path/${self:service}-${self:provider.stage}-statichomepagebucket/styles/{style}
