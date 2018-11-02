@@ -29,7 +29,7 @@ plugins:
 service: chronicler
 
 # Pin your service to only deploy with a specific Serverless version
-# frameworkVersion: "=1.31.0"
+frameworkVersion: "=1.31.0"
 
 provider:
   name: aws
