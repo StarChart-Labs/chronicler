@@ -3,4 +3,7 @@ dependencies {
     compile 'com.amazonaws:aws-java-sdk-ssm'
     compile 'com.google.code.findbugs:jsr305'
     compile 'org.starchartlabs.alloy:alloy-core'
+    
+    testCompile 'org.mockito:mockito-core'
+    testCompile 'org.testng:testng'
 }
