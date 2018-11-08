@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.alloy.core.Suppliers;
-import org.starchartlabs.chronicler.calamari.core.auth.ApplicationKey;
+import org.starchartlabs.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.chronicler.diff.analyzer.PullRequestAnalyzer;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.machete.SecuredRsaKeyParameter;
