@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.starchartlabs.chronicler.calamari.core.auth.ApplicationKey;
-import org.starchartlabs.chronicler.calamari.core.auth.InstallationAccessToken;
+import org.starchartlabs.calamari.core.auth.ApplicationKey;
+import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
 import org.starchartlabs.chronicler.calamari.core.paging.PageReader;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.Requests;
