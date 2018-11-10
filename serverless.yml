@@ -41,13 +41,13 @@ provider:
     SERVICE: "${self:service}"
     STAGE: "${self:provider.stage}"
 
-# TODO Appears default variable syntax is broken, hopefully fixed by production time so prod can be set to just service name
-# https://github.com/serverless/serverless/issues/3714
 custom:
+  domainOverride:
+    production: '${self:service}.starchartlabs.org'
   topic:
     diff: "${self:provider.stage}_chronicler_diff-topic"
   customDomain:
-    domainName: "${self:service}-${self:provider.stage}.starchartlabs.org"
+    domainName: ${self:custom.domainOverride.${self:provider.stage}, "${self:service}-${self:provider.stage}.starchartlabs.org"}
     basePath: ''
     certificateName: '*.starchartlabs.org'
     createRoute53Record: false
@@ -114,7 +114,6 @@ functions:
     environment:
         GITHUB_APP_KEY_SSM: /${self:provider.stage}/${self:service}/github/app/key
         GITHUB_APP_ID_SSM: /${self:provider.stage}/${self:service}/github/app/id
-        #GITHUB_APP_ID: ${ssm:/${self:provider.stage}/${self:service}/github/app/id}
     events:
         - sns: ${self:custom.topic.diff}
 
