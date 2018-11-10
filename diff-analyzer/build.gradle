@@ -7,7 +7,6 @@ dependencies {
     
     compile 'com.amazonaws:aws-java-sdk-ssm'
     compile 'com.amazonaws:aws-lambda-java-core'
-    compile 'com.amazonaws:aws-lambda-java-events'
     compile 'com.google.code.findbugs:jsr305'
     compile 'org.slf4j:slf4j-api'
     compile 'org.starchartlabs.calamari:calamari-core'

@@ -1,6 +1,7 @@
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
     compile 'com.amazonaws:aws-java-sdk-ssm'
+    compile 'com.amazonaws:aws-lambda-java-events'
     compile 'com.google.code.findbugs:jsr305'
     compile 'org.starchartlabs.alloy:alloy-core'
     

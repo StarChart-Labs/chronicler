@@ -10,11 +10,8 @@
  */
 package org.starchartlabs.chronicler.diff.analyzer.aws;
 
-import java.util.Collection;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,23 +19,26 @@ import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.chronicler.diff.analyzer.PullRequestAnalyzer;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
+import org.starchartlabs.chronicler.machete.SnsEvents;
 import org.starchartlabs.chronicler.machete.SecuredRsaKeyParameter;
+import org.starchartlabs.chronicler.machete.StringParameter;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
-import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNS;
-import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNSRecord;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 
 public class Handler implements RequestHandler<SNSEvent, Void> {
 
     private static final String PARAMETER_STORE_SECRET_KEY = "GITHUB_APP_KEY_SSM";
 
-    private static final String APPLICATION_ID = getAppId();
+    private static final String PARAMETER_STORE_APP_ID = "GITHUB_APP_ID_SSM";
+
+    private static final Supplier<String> APPLICATION_KEY_SUPPLIER = Suppliers.memoizeWithExpiration(
+            SecuredRsaKeyParameter.fromEnv(PARAMETER_STORE_SECRET_KEY),
+            10, TimeUnit.MINUTES);
+
+    private static final Supplier<String> APPLICATION_ID_SUPPLIER = Suppliers
+            .memoizeWithExpiration(StringParameter.fromEnv(PARAMETER_STORE_APP_ID), 10, TimeUnit.MINUTES);
 
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -46,40 +46,14 @@ public class Handler implements RequestHandler<SNSEvent, Void> {
     @Override
     public Void handleRequest(SNSEvent input, Context context) {
         logger.trace("Received SNS event: " + input);
-        ApplicationKey applicationKey = new ApplicationKey(APPLICATION_ID, getPrivateKeySupplier());
+
+        ApplicationKey applicationKey = new ApplicationKey(APPLICATION_ID_SUPPLIER.get(), APPLICATION_KEY_SUPPLIER);
         PullRequestAnalyzer analyzer = new PullRequestAnalyzer(applicationKey);
 
-        getEvents(input).stream()
-                .forEach(analyzer::analyze);
+        SnsEvents.getMessages(input, GitHubPullRequestEvent::fromJson, GitHubPullRequestEvent.SUBJECT).stream()
+        .forEach(analyzer::analyze);
 
         return null;
-    }
-
-    private Collection<GitHubPullRequestEvent> getEvents(SNSEvent input) {
-        return input.getRecords().stream()
-                .map(SNSRecord::getSNS)
-                .filter(sns -> Objects.equals(sns.getSubject(), GitHubPullRequestEvent.SUBJECT))
-                .map(SNS::getMessage)
-                .map(GitHubPullRequestEvent::fromJson)
-                .collect(Collectors.toSet());
-    }
-
-    private Supplier<String> getPrivateKeySupplier() {
-        return Suppliers.memoizeWithExpiration(SecuredRsaKeyParameter.fromEnv(PARAMETER_STORE_SECRET_KEY),
-                10, TimeUnit.MINUTES);
-    }
-
-    // TODO romeara Temporary until can figure out how to reference SSM in serverless.yml
-    private static String getAppId() {
-        AWSSimpleSystemsManagement systemsManagementClient = AWSSimpleSystemsManagementClientBuilder.defaultClient();
-
-        GetParameterRequest getParameterRequest = new GetParameterRequest();
-        getParameterRequest.withName(System.getenv("GITHUB_APP_ID_SSM"));
-        getParameterRequest.setWithDecryption(false);
-
-        GetParameterResult result = systemsManagementClient.getParameter(getParameterRequest);
-
-        return result.getParameter().getValue();
     }
 
 }
