@@ -11,6 +11,7 @@
 package org.starchartlabs.chronicler.diff.analyzer;
 
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -28,6 +29,19 @@ import okhttp3.HttpUrl;
 
 //https://developer.github.com/v3/pulls/#list-pull-requests-files
 public class PullRequestAnalyzer {
+
+    private static final ResourceBundle MESSAGES = ResourceBundle
+            .getBundle("org.starchartlabs.chronicler.diff.analyzer.messages");
+
+    private static final String PENDING_MESSAGE_KEY = "status.pending";
+
+    private static final String ERROR_MESSAGE_KEY = "status.error";
+
+    private static final String SUCCESS_UPDATED_MESSAGE_KEY = "status.success.updated";
+
+    private static final String SUCCESS_UNNEEDED_MESSAGE_KEY = "status.success.unneeded";
+
+    private static final String FAILURE_MESSAGE_KEY = "status.failure";
 
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -48,7 +62,7 @@ public class PullRequestAnalyzer {
                 accessToken);
 
         // Set pending status
-        statusHandler.sendPending("Analysis in progress");
+        statusHandler.sendPending(MESSAGES.getString(PENDING_MESSAGE_KEY));
 
         AnalysisSettings settings = AnalysisSettings.defaultSettings();
 
@@ -73,7 +87,7 @@ public class PullRequestAnalyzer {
 
             processResult(results, statusHandler);
         } catch (Exception e) {
-            statusHandler.sendError("Error processing pull request files");
+            statusHandler.sendError(MESSAGES.getString(ERROR_MESSAGE_KEY));
 
             throw new RuntimeException("Error processing pull request files", e);
         }
@@ -84,12 +98,12 @@ public class PullRequestAnalyzer {
 
         if (results.isDocumented()) {
             if (results.isModifyingProductionFiles()) {
-                description = "Release notes updated as required";
+                description = MESSAGES.getString(SUCCESS_UPDATED_MESSAGE_KEY);
             } else {
-                description = "No production files modified";
+                description = MESSAGES.getString(SUCCESS_UNNEEDED_MESSAGE_KEY);
             }
         } else {
-            description = "Production files modified without release notes";
+            description = MESSAGES.getString(FAILURE_MESSAGE_KEY);
         }
 
         if (results.isDocumented()) {
