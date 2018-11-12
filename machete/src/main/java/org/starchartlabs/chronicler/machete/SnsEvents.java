@@ -45,6 +45,8 @@ public final class SnsEvents {
      *            Function for converting string payload(s) to a meaningful Java representation
      * @param subject
      *            Message subject to filter matches to. May be null to prevent any subject-based filtering
+     * @param <T>
+     *            Java representation of event to provide
      * @return A collection of converted message payload(s)
      * @since 0.1.0
      */
