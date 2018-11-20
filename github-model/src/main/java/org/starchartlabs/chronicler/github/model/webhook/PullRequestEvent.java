@@ -61,7 +61,7 @@ public class PullRequestEvent {
     // Status (pull_request.statuses_url, str)
     private final String pullRequestStatusesUrl;
 
-    // Commit? (.pull_request.head.sha, str)
+    // Commit (.pull_request.head.sha, str)
     private final String headCommitSha;
 
     public PullRequestEvent(long id, long number, String action, String loggableRepositoryName, String pullRequestUrl,
