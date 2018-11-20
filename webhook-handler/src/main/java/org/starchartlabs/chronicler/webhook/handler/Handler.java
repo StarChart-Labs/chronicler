@@ -20,10 +20,18 @@ import org.slf4j.LoggerFactory;
 import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.chronicler.calamari.core.webhook.WebhookVerifier;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
+import org.starchartlabs.chronicler.github.model.webhook.InstallationEvent;
+import org.starchartlabs.chronicler.github.model.webhook.InstallationRepositoriesEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PingEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PullRequestEvent;
 import org.starchartlabs.chronicler.machete.SecuredParameter;
 
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.MetricDatum;
+import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
@@ -43,6 +51,8 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     private static final String SNS_TOPIC_ARN = System.getenv("SNS_TOPIC_ARN");
 
     private static final AmazonSNS SNS_CLIENT = AmazonSNSClientBuilder.defaultClient();
+
+    private static final AmazonCloudWatch CLOUDWATCH_CLIENT = AmazonCloudWatchClientBuilder.defaultClient();
 
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -120,11 +130,56 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
                         event.getPullRequestStatusesUrl(),
                         event.getHeadCommitSha());
             }
+        } else if (InstallationEvent.isCompatibleWithEventType(eventType)) {
+            InstallationEvent event = InstallationEvent.fromJson(body);
+
+            event.getLoggableRepositoryNames().stream()
+            .forEach(repo -> logger.info("GitHub Install: {}: {}", event.getAction(), repo));
+
+            if (event.getLoggableRepositoryNames().isEmpty()) {
+                logger.info("GitHub Account Install: {}: {}", event.getAction(), event.getAccountName());
+            }
+
+            if (event.isInstallation()) {
+                recordInstallation(event.getLoggableRepositoryNames().size());
+            }
+        } else if (InstallationRepositoriesEvent.isCompatibleWithEventType(eventType)) {
+            InstallationRepositoriesEvent event = InstallationRepositoriesEvent.fromJson(body);
+
+            event.getLoggableRepositoryNames().stream()
+            .forEach(repo -> logger.info("GitHub Install: {}: {}", event.getAction(), repo));
+
+            if (event.getLoggableRepositoryNames().isEmpty()) {
+                logger.info("GitHub Account Install: {}: {}", event.getAction(), event.getAccountName());
+            }
+
+            if (event.isInstallation()) {
+                recordInstallation(event.getLoggableRepositoryNames().size());
+            }
         } else {
             logger.debug("Received unhandled event type: {}", eventType);
         }
 
         return Optional.ofNullable(result);
+    }
+
+    private void recordInstallation(int installations) {
+        Dimension dimension = new Dimension()
+                .withName("INSTALLATIONS")
+                .withValue("REPOSITORIES");
+
+        MetricDatum datum = new MetricDatum()
+                .withMetricName("INSTALLATIONS")
+                .withUnit(StandardUnit.Count)
+                .withValue(Integer.valueOf(installations).doubleValue())
+                .withDimensions(dimension);
+
+        // TODO romeara setup namespace as an env variable
+        PutMetricDataRequest request = new PutMetricDataRequest()
+                .withNamespace("chronicler/dev")
+                .withMetricData(datum);
+
+        CLOUDWATCH_CLIENT.putMetricData(request);
     }
 
     private static Supplier<String> getWebhookSecretSupplier() {
