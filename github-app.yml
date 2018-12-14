@@ -1,0 +1,26 @@
+# Description of the configuration of a GitHub App For Chronicler
+# Based losely on the manifest file specification at:
+# https://developer.github.com/apps/building-github-apps/creating-github-apps-from-a-manifest/#github-app-manifest-parameters
+
+# However, the manifest specification appears incomplete, and in some cases is unclear on values, hence the choice of a custom YAML
+
+name: Chronicler (Dev)
+description: GitHub App for checking that release notes are updated in the same pull request, instead of trying to remember to update them at the end
+homepageUrl: https://chronicler-dev.starchartlabs.org
+userAuthorizationUrl: https://chronicler-dev.starchartlabs.org
+webhookUrl: https://chronicler-dev.starchartlabs.org/github/webhooks
+permissions:
+   - repositoryMetadata: 
+      - read
+   - pullRequests:
+      - read
+      - write
+   - singleFile:
+      - read
+      - path: /.starchart-labs/chronicler.yml
+   - commitStatuses:
+      - read
+      - write
+events:
+   - pullRequest
+   - repository
