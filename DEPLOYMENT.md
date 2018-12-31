@@ -18,7 +18,9 @@ To deploy Chronicler for a given stage, the following manual setup is required o
  	- /${stage}/chronicler/github/webhook-secret
  		- The webhook secret configured on the GitHub App
  - At this point, local copies of the secret and key may be discarded - they can be regenerated and configured later if necessary
- - After the initial Serverless deploy (below), the last one-time step will be to go to [AWS API Gateway Custom Domain Names](https://console.aws.amazon.com/apigateway/home?region=us-east-1#/custom-domain-names), find the "Target Domain Name" entry, and add a DNS record on Google Domains for the target URL
+ - The last one-time step will be to go to [AWS API Gateway Custom Domain Names]
+   - Create the appropriate domain name
+   - Find the "Target Domain Name" entry, and add a DNS record on Google Domains for the target URL
  	
 # Serverless Deployment
 

@@ -32,6 +32,7 @@ service: chronicler
 frameworkVersion: "=1.31.0"
 
 provider:
+  stage: "${opt:stage, 'dev'}"
   name: aws
   runtime: java8
   logRetentionInDays: 7
