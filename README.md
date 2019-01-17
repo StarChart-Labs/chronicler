@@ -1,6 +1,6 @@
 # Chronicler
 
-[![Travis CI](https://img.shields.io/travis/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.org/StarChart-Labs/chronicler) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master)
+[![Travis CI](https://img.shields.io/travis/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.org/StarChart-Labs/chronicler)
 
 GitHub integration which validates whether release notes are updated when production code is changed
 
@@ -24,7 +24,7 @@ The requirement for a copy of the license being included in distributions is ful
 
 ## Reporting Vulnerabilities
 
-If you discover a security vulnerability, contact the development team by e-mail at corona.ide.dev@gmail.com
+If you discover a security vulnerability, contact the development team by e-mail at vulnerabilities@starchartlabs.org
 
 ## Serverless Conversion Notes
 
