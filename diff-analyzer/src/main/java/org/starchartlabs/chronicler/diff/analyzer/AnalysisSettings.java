@@ -10,15 +10,34 @@
  */
 package org.starchartlabs.chronicler.diff.analyzer;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
+import org.starchartlabs.alloy.core.MoreObjects;
+import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
+import org.starchartlabs.chronicler.calamari.core.files.FileContentLoader;
+import org.starchartlabs.chronicler.diff.analyzer.configuration.AnalysisSettingsYaml;
+import org.starchartlabs.chronicler.diff.analyzer.configuration.PatternConditionsYaml;
+import org.starchartlabs.chronicler.github.model.Requests;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+
 public class AnalysisSettings {
+
+    private static final Path DEFAULT_SETTINGS_FILE = Paths.get("org", "starchartlabs", "chronicler", "diff",
+            "analyzer", "defaultAnalysisSettings.yml");
+
+    private static final AnalysisSettingsYaml DEFAULT_YAML = loadDefaultYaml();
+
+    private static final AnalysisSettings DEFAULT_SETTINGS = fromFile(DEFAULT_YAML);
 
     private final PatternConditions productionFiles;
 
@@ -45,21 +64,78 @@ public class AnalysisSettings {
         return releaseNoteFiles.matches(compare);
     }
 
-    public static AnalysisSettings defaultSettings() {
-        return AnalysisSettings.builder()
-                .includeProduction("**/src/**")
-                .excludeProduction("**/test/**")
-                .includeReleaseNotes("**/CHANGE*LOG*")
-                .includeReleaseNotes("**/RELEASE*NOTES*")
-                .build();
-    }
+    public static AnalysisSettings forRepository(InstallationAccessToken accessToken, String repositoryUrl,
+            String branch, String path) {
+        Objects.requireNonNull(accessToken);
+        Objects.requireNonNull(repositoryUrl);
+        Objects.requireNonNull(branch);
+        Objects.requireNonNull(path);
 
-    // TODO forRepository
+        Yaml yaml = new Yaml(new Constructor(AnalysisSettingsYaml.class));
+        FileContentLoader contentLoader = new FileContentLoader(accessToken, Requests.USER_AGENT);
+
+        return contentLoader.loadContents(repositoryUrl, branch, path)
+                .map(s -> (AnalysisSettingsYaml) yaml.load(s))
+                .map(AnalysisSettings::fromFile)
+                .orElse(DEFAULT_SETTINGS);
+    }
 
     // TODO obj methods
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(getClass()).omitNullValues()
+                .add("productionFiles", productionFiles)
+                .add("releaseNoteFiles", releaseNoteFiles)
+                .toString();
+    }
+
     public static Builder builder() {
         return new Builder();
+    }
+
+    private static AnalysisSettings fromFile(AnalysisSettingsYaml fileContents) {
+        Objects.requireNonNull(fileContents);
+
+        PatternConditionsYaml productionFiles = Optional.ofNullable(fileContents.getProductionFiles())
+                .orElse(DEFAULT_YAML.getProductionFiles());
+        PatternConditionsYaml releaseNoteFiles = Optional.ofNullable(fileContents.getReleaseNoteFiles())
+                .orElse(DEFAULT_YAML.getReleaseNoteFiles());
+
+        Builder builder = new Builder();
+
+        if (productionFiles.getInclude() != null) {
+            productionFiles.getInclude().stream()
+            .forEach(builder::includeProduction);
+        }
+
+        if (productionFiles.getExclude() != null) {
+            productionFiles.getExclude().stream()
+            .forEach(builder::excludeProduction);
+        }
+
+        if (releaseNoteFiles.getInclude() != null) {
+            releaseNoteFiles.getInclude().stream()
+            .forEach(builder::includeReleaseNotes);
+        }
+
+        if (releaseNoteFiles.getExclude() != null) {
+            releaseNoteFiles.getExclude().stream()
+            .forEach(builder::excludeReleaseNotes);
+        }
+
+        return builder.build();
+    }
+
+    private static AnalysisSettingsYaml loadDefaultYaml() {
+        Yaml yaml = new Yaml(new Constructor(AnalysisSettingsYaml.class));
+
+        try (InputStream stream = AnalysisSettings.class.getClassLoader()
+                .getResourceAsStream(DEFAULT_SETTINGS_FILE.toString())) {
+            return yaml.load(stream);
+        }catch(IOException e) {
+            throw new RuntimeException("Error loading default analysis settings", e);
+        }
     }
 
     public static class Builder {

@@ -21,10 +21,13 @@ public final class MediaTypes {
 
     /**
      * Media type used by GitHub app's during the preview period
-     * 
+     *
      * @since 0.1.0
      */
     public static final String APP_PREVIEW = "application/vnd.github.machine-man-preview+json";
+
+    // TODO romeara
+    // public static final String RAW = "application/vnd.github.v3.raw";
 
     /**
      * Prevent instantiation of utility class
