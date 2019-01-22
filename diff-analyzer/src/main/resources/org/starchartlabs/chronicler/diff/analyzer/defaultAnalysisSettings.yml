@@ -1,0 +1,9 @@
+productionFiles:
+   include:
+      - '**/src/**'
+   exclude:
+      - '**/test/**'
+releaseNoteFiles:
+   include:
+      - '**/CHANGE*LOG*'
+      - '**/RELEASE*NOTES*'

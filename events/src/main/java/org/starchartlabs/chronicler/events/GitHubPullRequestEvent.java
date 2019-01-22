@@ -33,17 +33,20 @@ public class GitHubPullRequestEvent {
 
     private final String baseRepositoryUrl;
 
+    private final String baseBranch;
+
     private final String pullRequestStatusesUrl;
 
     private final String headCommitSha;
 
     public GitHubPullRequestEvent(long number, String loggableRepositoryName, String pullRequestUrl,
-            String baseRepositoryUrl,
+            String baseRepositoryUrl, String baseBranch,
             String pullRequestStatusesUrl, String headCommitSha) {
         this.number = number;
         this.loggableRepositoryName = Objects.requireNonNull(loggableRepositoryName);
         this.pullRequestUrl = Objects.requireNonNull(pullRequestUrl);
         this.baseRepositoryUrl = Objects.requireNonNull(baseRepositoryUrl);
+        this.baseBranch = Objects.requireNonNull(baseBranch);
         this.pullRequestStatusesUrl = Objects.requireNonNull(pullRequestStatusesUrl);
         this.headCommitSha = Objects.requireNonNull(headCommitSha);
     }
@@ -64,6 +67,10 @@ public class GitHubPullRequestEvent {
         return baseRepositoryUrl;
     }
 
+    public String getBaseBranch() {
+        return baseBranch;
+    }
+
     public String getPullRequestStatusesUrl() {
         return pullRequestStatusesUrl;
     }
@@ -79,8 +86,10 @@ public class GitHubPullRequestEvent {
     @Override
     public int hashCode() {
         return Objects.hash(getNumber(),
+                getLoggableRepositoryName(),
                 getPullRequestUrl(),
                 getBaseRepositoryUrl(),
+                getBaseBranch(),
                 getPullRequestStatusesUrl(),
                 getHeadCommitSha());
     }
@@ -93,8 +102,10 @@ public class GitHubPullRequestEvent {
             GitHubPullRequestEvent compare = (GitHubPullRequestEvent) obj;
 
             result = Objects.equals(compare.getNumber(), getNumber())
+                    && Objects.equals(compare.getLoggableRepositoryName(), getLoggableRepositoryName())
                     && Objects.equals(compare.getPullRequestUrl(), getPullRequestUrl())
                     && Objects.equals(compare.getBaseRepositoryUrl(), getBaseRepositoryUrl())
+                    && Objects.equals(compare.getBaseBranch(), getBaseBranch())
                     && Objects.equals(compare.getPullRequestStatusesUrl(), getPullRequestStatusesUrl())
                     && Objects.equals(compare.getHeadCommitSha(), getHeadCommitSha());
         }
@@ -106,8 +117,10 @@ public class GitHubPullRequestEvent {
     public String toString() {
         return MoreObjects.toStringHelper(getClass()).omitNullValues()
                 .add("number", getNumber())
+                .add("loggableRepositoryName", getLoggableRepositoryName())
                 .add("pullRequestUrl", getPullRequestUrl())
                 .add("baseRepositoryUrl", getBaseRepositoryUrl())
+                .add("baseBranch", getBaseBranch())
                 .add("pullRequestStatusesUrl", getPullRequestStatusesUrl())
                 .add("headCommitSha", getHeadCommitSha())
                 .toString();

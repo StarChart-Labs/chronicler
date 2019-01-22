@@ -58,6 +58,9 @@ public class PullRequestEvent {
     // Repo Url (.pull_request.base.repo.url, str)
     private final String baseRepositoryUrl;
 
+    // Repo Url (.pull_request.base.ref, str)
+    private final String baseRef;
+
     // Status (pull_request.statuses_url, str)
     private final String pullRequestStatusesUrl;
 
@@ -65,13 +68,14 @@ public class PullRequestEvent {
     private final String headCommitSha;
 
     public PullRequestEvent(long id, long number, String action, String loggableRepositoryName, String pullRequestUrl,
-            String baseRepositoryUrl, String pullRequestStatusesUrl, String headCommitSha) {
+            String baseRepositoryUrl, String baseRef, String pullRequestStatusesUrl, String headCommitSha) {
         this.id = id;
         this.number = number;
         this.action = Objects.requireNonNull(action);
         this.loggableRepositoryName = Objects.requireNonNull(loggableRepositoryName);
         this.pullRequestUrl = Objects.requireNonNull(pullRequestUrl);
         this.baseRepositoryUrl = Objects.requireNonNull(baseRepositoryUrl);
+        this.baseRef = Objects.requireNonNull(baseRef);
         this.pullRequestStatusesUrl = Objects.requireNonNull(pullRequestStatusesUrl);
         this.headCommitSha = Objects.requireNonNull(headCommitSha);
     }
@@ -100,6 +104,10 @@ public class PullRequestEvent {
         return baseRepositoryUrl;
     }
 
+    public String getBaseRef() {
+        return baseRef;
+    }
+
     public String getPullRequestStatusesUrl() {
         return pullRequestStatusesUrl;
     }
@@ -120,6 +128,7 @@ public class PullRequestEvent {
                 getLoggableRepositoryName(),
                 getPullRequestUrl(),
                 getBaseRepositoryUrl(),
+                getBaseRef(),
                 getPullRequestStatusesUrl(),
                 getHeadCommitSha());
     }
@@ -137,6 +146,7 @@ public class PullRequestEvent {
                     && Objects.equals(compare.getLoggableRepositoryName(), getLoggableRepositoryName())
                     && Objects.equals(compare.getPullRequestUrl(), getPullRequestUrl())
                     && Objects.equals(compare.getBaseRepositoryUrl(), getBaseRepositoryUrl())
+                    && Objects.equals(compare.getBaseRef(), getBaseRef())
                     && Objects.equals(compare.getPullRequestStatusesUrl(), getPullRequestStatusesUrl())
                     && Objects.equals(compare.getHeadCommitSha(), getHeadCommitSha());
         }
@@ -153,11 +163,11 @@ public class PullRequestEvent {
                 .add("loggableRepositoryName", getLoggableRepositoryName())
                 .add("pullRequestUrl", getPullRequestUrl())
                 .add("baseRepositoryUrl", getBaseRepositoryUrl())
+                .add("baseRef", getBaseRef())
                 .add("pullRequestStatusesUrl", getPullRequestStatusesUrl())
                 .add("headCommitSha", getHeadCommitSha())
                 .toString();
     }
-
     public static boolean isCompatibleWithEventType(String eventType) {
         Objects.requireNonNull(eventType);
 
@@ -186,6 +196,7 @@ public class PullRequestEvent {
             String action = event.get("action").getAsString();
             String pullRequestUrl = pullRequest.get("url").getAsString();
             String baseRepositoryUrl = baseRepo.get("url").getAsString();
+            String baseRef = base.get("ref").getAsString();
             String pullRequestStatusesUrl = pullRequest.get("statuses_url").getAsString();
             String headCommitSha = head.get("sha").getAsString();
 
@@ -197,7 +208,7 @@ public class PullRequestEvent {
             }
 
             return new PullRequestEvent(id, number, action, loggableRepositoryName, pullRequestUrl, baseRepositoryUrl,
-                    pullRequestStatusesUrl, headCommitSha);
+                    baseRef, pullRequestStatusesUrl, headCommitSha);
         }
     }
 

@@ -64,7 +64,11 @@ public class PullRequestAnalyzer {
         // Set pending status
         statusHandler.sendPending(MESSAGES.getString(PENDING_MESSAGE_KEY));
 
-        AnalysisSettings settings = AnalysisSettings.defaultSettings();
+        // TODO make path a configuration setting
+        AnalysisSettings settings = AnalysisSettings.forRepository(accessToken, event.getBaseRepositoryUrl(),
+                event.getBaseBranch(), ".starchart-labs/chronicler.yml");
+
+        logger.info("Using analysis settings: {}", settings.toString());
 
         HttpUrl url = HttpUrl.get(event.getPullRequestUrl()).newBuilder()
                 .addPathSegment("files")

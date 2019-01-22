@@ -127,6 +127,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
                         event.getLoggableRepositoryName(),
                         event.getPullRequestUrl(),
                         event.getBaseRepositoryUrl(),
+                        event.getBaseRef(),
                         event.getPullRequestStatusesUrl(),
                         event.getHeadCommitSha());
             }

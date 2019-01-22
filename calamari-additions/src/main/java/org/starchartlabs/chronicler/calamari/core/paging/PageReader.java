@@ -30,6 +30,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 //TODO romeara move to calamari?
 //TODO romeara - possibly re-implement as a spliterator implementation so real streams can be used?
@@ -104,7 +105,9 @@ public class PageReader {
             Response response = getResponse(httpClient, nextUrl, authorizationHeader);
 
             PagingLinks pagingLinks = new PagingLinks(response.headers("Link"));
-            currentPageResult = getBody(gson, response.body().string(), mapper, ongoingCollector);
+            try (ResponseBody responseBody = response.body()) {
+                currentPageResult = getBody(gson, responseBody.string(), mapper, ongoingCollector);
+            }
             pagesRead++;
             combinedResult = currentPageResult;
 
@@ -115,7 +118,9 @@ public class PageReader {
                 response = getResponse(httpClient, nextUrl, authorizationHeader);
 
                 pagingLinks = new PagingLinks(response.headers("Link"));
-                currentPageResult = getBody(gson, response.body().string(), mapper, ongoingCollector);
+                try (ResponseBody responseBody = response.body()) {
+                    currentPageResult = getBody(gson, responseBody.string(), mapper, ongoingCollector);
+                }
                 pagesRead++;
 
                 logger.info("Paging links: {}", response.headers("Link"));
