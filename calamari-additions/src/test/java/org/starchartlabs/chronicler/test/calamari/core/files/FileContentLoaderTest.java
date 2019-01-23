@@ -294,6 +294,63 @@ public class FileContentLoaderTest {
         }
     }
 
+    @Test
+    public void loadContentsMimeEncoding() throws Exception {
+        String responseJson = null;
+        String expectedContents = "productionFiles:\n" +
+                "   include:\n" +
+                "      - '**/README*'\n" +
+                "releaseNoteFiles:\n" +
+                "   include:\n" +
+                "      - '**/CHANGE*LOG*'\n" +
+                "      - '**/RELEASE*NOTES*'\n";
+
+        try (BufferedReader reader = getClasspathReader(
+                TEST_RESOURCE_FOLDER.resolve("fileContentResponseMimeEncoding.json"))) {
+            responseJson = reader.lines()
+                    .collect(Collectors.joining("\n"));
+        }
+
+        MockResponse response = new MockResponse()
+                .addHeader("Content-Type", MediaTypes.APP_PREVIEW)
+                .setBody(responseJson);
+
+        String owner = "owner";
+        String repository = "repository";
+        String ref = "ref";
+        String path = "path.json";
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.enqueue(response);
+            server.start();
+
+            String repositoryUrl = server.url("/api/repos/" + owner + "/" + repository).toString();
+
+            FileContentLoader contentLoader = new FileContentLoader(accessToken, "userAgent");
+
+            Mockito.when(accessToken.get()).thenReturn("token authToken12345");
+
+            try {
+                Optional<String> result = contentLoader.loadContents(repositoryUrl, ref, path);
+
+                Assert.assertNotNull(result);
+                Assert.assertTrue(result.isPresent());
+                Assert.assertEquals(result.get(), expectedContents);
+            } finally {
+                Assert.assertEquals(server.getRequestCount(), 1);
+                RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
+
+                Assert.assertEquals(request.getHeader("User-Agent"), "userAgent");
+                Assert.assertEquals(request.getHeader("Accept"), MediaTypes.APP_PREVIEW);
+                Assert.assertEquals(request.getHeader("Authorization"), "token authToken12345");
+                Assert.assertEquals(request.getPath(),
+                        "/api/repos/" + owner + "/" + repository + "/contents/" + path + "?ref=" + ref);
+
+                Mockito.verify(accessToken).get();
+            }
+        }
+    }
+
     private BufferedReader getClasspathReader(Path filePath) {
         return new BufferedReader(
                 new InputStreamReader(getClass().getClassLoader().getResourceAsStream(filePath.toString()),

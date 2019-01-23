@@ -67,4 +67,5 @@ public class AnalysisSettingsYaml {
                 .add("releaseNoteFiles", getReleaseNoteFiles())
                 .toString();
     }
+
 }
