@@ -66,4 +66,5 @@ public class PatternConditionsYaml {
                 .add("exclude", getExclude())
                 .toString();
     }
+
 }

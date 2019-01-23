@@ -26,9 +26,6 @@ public final class MediaTypes {
      */
     public static final String APP_PREVIEW = "application/vnd.github.machine-man-preview+json";
 
-    // TODO romeara
-    // public static final String RAW = "application/vnd.github.v3.raw";
-
     /**
      * Prevent instantiation of utility class
      */

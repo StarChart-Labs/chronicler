@@ -12,7 +12,6 @@ package org.starchartlabs.chronicler.diff.analyzer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
@@ -21,14 +20,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.starchartlabs.alloy.core.MoreObjects;
 import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
 import org.starchartlabs.chronicler.calamari.core.files.FileContentLoader;
 import org.starchartlabs.chronicler.diff.analyzer.configuration.AnalysisSettingsYaml;
 import org.starchartlabs.chronicler.diff.analyzer.configuration.PatternConditionsYaml;
+import org.starchartlabs.chronicler.diff.analyzer.exception.InvalidConfigurationException;
 import org.starchartlabs.chronicler.github.model.Requests;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 public class AnalysisSettings {
 
@@ -65,66 +68,65 @@ public class AnalysisSettings {
     }
 
     public static AnalysisSettings forRepository(InstallationAccessToken accessToken, String repositoryUrl,
-            String branch, String path) {
+            String branch, String path) throws InvalidConfigurationException {
         Objects.requireNonNull(accessToken);
         Objects.requireNonNull(repositoryUrl);
         Objects.requireNonNull(branch);
         Objects.requireNonNull(path);
 
-        Yaml yaml = new Yaml(new Constructor(AnalysisSettingsYaml.class));
         FileContentLoader contentLoader = new FileContentLoader(accessToken, Requests.USER_AGENT);
 
         return contentLoader.loadContents(repositoryUrl, branch, path)
-                .map(s -> (AnalysisSettingsYaml) yaml.load(s))
-                .map(AnalysisSettings::fromFile)
+                .flatMap(AnalysisSettings::fromYaml)
                 .orElse(DEFAULT_SETTINGS);
     }
 
-    // TODO obj methods
+    public static Optional<AnalysisSettings> fromYaml(String yamlContents) throws InvalidConfigurationException {
+        Objects.requireNonNull(yamlContents);
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(getClass()).omitNullValues()
-                .add("productionFiles", productionFiles)
-                .add("releaseNoteFiles", releaseNoteFiles)
-                .toString();
-    }
+        Yaml yaml = new Yaml(new Constructor(AnalysisSettingsYaml.class));
 
-    public static Builder builder() {
-        return new Builder();
+        try {
+            return Optional.ofNullable((AnalysisSettingsYaml) yaml.load(yamlContents))
+                    .map(AnalysisSettings::fromFile);
+        } catch (YAMLException e) {
+            throw new InvalidConfigurationException("Error parsing YAML configuration", e);
+        }
     }
 
     private static AnalysisSettings fromFile(AnalysisSettingsYaml fileContents) {
         Objects.requireNonNull(fileContents);
 
-        PatternConditionsYaml productionFiles = Optional.ofNullable(fileContents.getProductionFiles())
+        PatternConditionsYaml productionFilesYaml = Optional.ofNullable(fileContents.getProductionFiles())
                 .orElse(DEFAULT_YAML.getProductionFiles());
-        PatternConditionsYaml releaseNoteFiles = Optional.ofNullable(fileContents.getReleaseNoteFiles())
+        PatternConditionsYaml releaseNoteFilesYaml = Optional.ofNullable(fileContents.getReleaseNoteFiles())
                 .orElse(DEFAULT_YAML.getReleaseNoteFiles());
 
-        Builder builder = new Builder();
+        PatternConditions productionFiles = toPatternConditions(productionFilesYaml);
+        PatternConditions releaseNoteFiles = toPatternConditions(releaseNoteFilesYaml);
 
-        if (productionFiles.getInclude() != null) {
-            productionFiles.getInclude().stream()
-            .forEach(builder::includeProduction);
+        return new AnalysisSettings(productionFiles, releaseNoteFiles);
+    }
+
+    private static PatternConditions toPatternConditions(PatternConditionsYaml yaml) {
+        Objects.requireNonNull(yaml);
+
+        Set<PathMatcher> includePatterns = new HashSet<>();
+        Set<PathMatcher> excludePatterns = new HashSet<>();
+
+        if (yaml.getInclude() != null) {
+            yaml.getInclude().stream()
+            .map(FileMatcher::new)
+            .forEach(includePatterns::add);
         }
 
-        if (productionFiles.getExclude() != null) {
-            productionFiles.getExclude().stream()
-            .forEach(builder::excludeProduction);
+        if (yaml.getExclude() != null) {
+            yaml.getExclude().stream()
+            .map(FileMatcher::new)
+            .forEach(excludePatterns::add);
         }
 
-        if (releaseNoteFiles.getInclude() != null) {
-            releaseNoteFiles.getInclude().stream()
-            .forEach(builder::includeReleaseNotes);
-        }
-
-        if (releaseNoteFiles.getExclude() != null) {
-            releaseNoteFiles.getExclude().stream()
-            .forEach(builder::excludeReleaseNotes);
-        }
-
-        return builder.build();
+        return new PatternConditions(includePatterns, excludePatterns);
     }
 
     private static AnalysisSettingsYaml loadDefaultYaml() {
@@ -133,74 +135,39 @@ public class AnalysisSettings {
         try (InputStream stream = AnalysisSettings.class.getClassLoader()
                 .getResourceAsStream(DEFAULT_SETTINGS_FILE.toString())) {
             return yaml.load(stream);
-        }catch(IOException e) {
+        } catch (YAMLException e) {
+            throw new InvalidConfigurationException("Error parsing default YAML configuration", e);
+        } catch (IOException e) {
             throw new RuntimeException("Error loading default analysis settings", e);
         }
     }
 
-    public static class Builder {
+    @Override
+    public int hashCode() {
+        return Objects.hash(productionFiles,
+                releaseNoteFiles);
+    }
 
-        private final Set<PathMatcher> includeProductionPatterns;
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        boolean result = false;
 
-        private final Set<PathMatcher> excludeProductionPatterns;
+        if (obj instanceof AnalysisSettings) {
+            AnalysisSettings compare = (AnalysisSettings) obj;
 
-        private final Set<PathMatcher> includeReleaseNotePatterns;
-
-        private final Set<PathMatcher> excludeReleaseNotePatterns;
-
-        private Builder() {
-            includeProductionPatterns = new HashSet<>();
-            excludeProductionPatterns = new HashSet<>();
-            includeReleaseNotePatterns = new HashSet<>();
-            excludeReleaseNotePatterns = new HashSet<>();
+            result = Objects.equals(productionFiles, compare.productionFiles)
+                    && Objects.equals(releaseNoteFiles, compare.releaseNoteFiles);
         }
 
-        public Builder includeProduction(String pattern) {
-            Objects.requireNonNull(pattern);
+        return result;
+    }
 
-            includeProductionPatterns.add(toMatcher(pattern));
-
-            return this;
-        }
-
-        public Builder excludeProduction(String pattern) {
-            Objects.requireNonNull(pattern);
-
-            excludeProductionPatterns.add(toMatcher(pattern));
-
-            return this;
-        }
-
-        public Builder includeReleaseNotes(String pattern) {
-            Objects.requireNonNull(pattern);
-
-            includeReleaseNotePatterns.add(toMatcher(pattern));
-
-            return this;
-        }
-
-        public Builder excludeReleaseNotes(String pattern) {
-            Objects.requireNonNull(pattern);
-
-            excludeReleaseNotePatterns.add(toMatcher(pattern));
-
-            return this;
-        }
-
-        public AnalysisSettings build() {
-            PatternConditions productionFiles = new PatternConditions(includeProductionPatterns,
-                    excludeProductionPatterns);
-            PatternConditions releaseNoteFiles = new PatternConditions(includeReleaseNotePatterns,
-                    excludeReleaseNotePatterns);
-
-            return new AnalysisSettings(productionFiles, releaseNoteFiles);
-        }
-
-        private PathMatcher toMatcher(String pattern) {
-            Objects.requireNonNull(pattern);
-
-            return FileSystems.getDefault().getPathMatcher("glob:" + pattern.trim().toLowerCase());
-        }
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(getClass()).omitNullValues()
+                .add("productionFiles", productionFiles)
+                .add("releaseNoteFiles", releaseNoteFiles)
+                .toString();
     }
 
 }

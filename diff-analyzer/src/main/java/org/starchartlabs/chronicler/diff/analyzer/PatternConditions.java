@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 
 import org.starchartlabs.alloy.core.MoreObjects;
 
+//TODO romeara
 public class PatternConditions {
 
     private final Set<PathMatcher> include;
