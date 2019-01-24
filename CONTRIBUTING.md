@@ -26,12 +26,17 @@ In general, pull requests should:
 - Have documentation for added methods/classes and appropriate in-line comments
 - Have additions to the CHANGE_LOG.md file recording changed behavior
 
-## Running Locally
+## Running Serverless Locally
 
-TODO Needs updating for AWS!
+To run a serverless deployment, you must npm install a couple serverless plug-ins, as well as serverless itself:
 
-If you wish to run the application yourself, you will have to setup a GitHub App. 
-
-First, you will need a location for webhook events to be sent. Currently, the best solution we've found for this is [RequestBin](https://requestb.in). Note that it expires every 48 hours.
-
-Next, create an App called "Chronicler (Development Testing)" that can only be installed on your account, matching the settings described in [GitHub App Settings](./doc/github-app-settings.md), with a webhook secret of "chronicler" (the secret matches one encrypted in test files). Finally, run `./gradlew run` locally. Repositories you install your test GitHub App on will send requests to RequestBin, which you can then take and send on to you local server via a tool such as Postman.
+```
+npm install serverless
+npm install --save-dev serverless-iam-roles-per-function
+npm install --save-dev serverless-aws-alias
+npm install --save-dev serverless-iam-roles-per-function
+npm install --save-dev serverless-domain-manager
+npm install --save-dev serverless-s3-deploy
+npm install --save-dev serverless-apigw-binary
+npm install --save-dev serverless-pseudo-parameters
+```

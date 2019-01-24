@@ -10,7 +10,7 @@ Information for how to contribute to Chronicler can be found in [the contributio
 
 ## Legal
 
-Chronicler is distributed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). The only requirement for use in inclusion of the following line within your NOTICES file:
+Chronicler is distributed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). The only requirement for use is inclusion of the following line within your NOTICES file:
 
 ```
 StarChart-Labs Chronicler Web Application
@@ -26,44 +26,36 @@ The requirement for a copy of the license being included in distributions is ful
 
 If you discover a security vulnerability, contact the development team by e-mail at vulnerabilities@starchartlabs.org
 
-## Serverless Conversion Notes
+## Use
 
-- Note: After first deploy, need to go to API Gateway, get Target Domain Name from Custom Domain page, and setup CNAME record in Google Domains
-- Should I figure out how to use cloud formation to create serverless group/users that can be limited based both on stage and on service? "policies"?
-  - Allow setup per stage of user, automate integration as profile into serverless environment (still requires user with at least create user/policy setup)
+To use Chronicler, (install)[https://github.com/apps/chronicler-by-starchart-labs] it on one or more repositories. Pull requests made after installation will be analyzed for two conditions:
 
-### Not Yet Automated
+# Did "production" files get modified?
+# Was a release notes file updated?
 
-- Deployment/Rotation of GitHub credentials used by functions?
-- CName update in google domains? (needs to be set when stack is created, but not for deploys after - cloudfront stays static)
+If "production" files were modified, and "release notes" were not, Chronicler will fail a status check on the pull request - otherwise, the pull request passes.
 
-### TODO
+### Default Settings
 
-NOTE: TO run serverless deployment, you must npm install a couple serverless plug-ins, as well as serverless itself:
+Chronicler allows customization of what are considered production files and what is recognized as a release notes file via a YAML file in `/.starchart-labs/chronicler.yml`.
+
+The default settings are:
+
+- Everything in a `src` directory and NOT in a `test` directory is a production file
+- Anything similar to `RELEASE_NOTES` or `CHANGE_LOG` is considered a release note file
+
+The configuration for the default settings would look like this:
 
 ```
-npm install --save-dev serverless-iam-roles-per-function
-npm install --save-dev serverless-aws-alias
+productionFiles:
+   include:
+      - '**/src/**'
+   exclude:
+      - '**/test/**'
+releaseNoteFiles:
+   include:
+      - '**/CHANGE*LOG*'
+      - '**/RELEASE*NOTES*'
 ```
 
-- Further narrow serverless user permissions, different users for dev, valid (cd) and production
-- service telemetry (newrelic-style info) on aws
-- usage alerts
-- add tags to resources to form a resource group
-- reduce memory allocation of webhook handler
-- SNS topic names into AWS System Manager Parameters (read info env var, cloudformation update/set as part of serverless deploy)
-   - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html
-
-### Serverless Plugins?
-
-- standards plugins: defines standardized naming conventions for things like parameter store keys, sns topics, etc
-
-### Gradle integration
-
-- Serverless should trigger build prior to deploy
-- Gradle build should perhaps create a yaml that serverless can consume with built artifact locations
-- Maybe combo of serverless plug-in and gradle plug-in that builds and then loads the file?
-
-### GitHub integration
-
-- Serverless/GitHub tool that sets up an app, and then grabs it's webhook secret and PEM and loads into AWS SSM Parameter Store?
+Patterns use the Java PathMatcher (glob syntax)[https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher(java.lang.String)], which are similar to Ant directory patterns. All patterns are case-insensitive.
