@@ -6,5 +6,4 @@ productionFiles:
 releaseNoteFiles:
    include:
       - '**/CHANGE*LOG*'
-      - '**/CHANGES*'
       - '**/RELEASE*NOTES*'
