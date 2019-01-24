@@ -30,12 +30,12 @@ If you discover a security vulnerability, contact the development team by e-mail
 
 To use Chronicler, [install](https://github.com/apps/chronicler-by-starchart-labs) it on one or more repositories. Pull requests made after installation will be analyzed for two conditions:
 
-1. Did "production" files get modified?
+1. Did production files get modified?
 2. Was a release notes file updated?
 
-If "production" files were modified, and "release notes" were not, Chronicler will fail a status check on the pull request - otherwise, the pull request passes.
+If production files were modified, and release notes were not, Chronicler will fail a status check on the pull request - otherwise, the pull request passes.
 
-### Default Settings
+### Configuration
 
 Chronicler allows customization of what are considered production files and what is recognized as a release notes file via a YAML file in `/.starchart-labs/chronicler.yml`.
 
@@ -58,4 +58,4 @@ releaseNoteFiles:
       - '**/RELEASE*NOTES*'
 ```
 
-Patterns use the Java PathMatcher [glob syntax](https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher(java.lang.String)), which are similar to Ant directory patterns. All patterns are case-insensitive.
+Patterns use the Java PathMatcher [glob syntax](https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher(java.lang.String)), which is similar to Ant directory patterns. All patterns are case-insensitive.
