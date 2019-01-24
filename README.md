@@ -28,7 +28,7 @@ If you discover a security vulnerability, contact the development team by e-mail
 
 ## Use
 
-To use Chronicler, (install)[https://github.com/apps/chronicler-by-starchart-labs] it on one or more repositories. Pull requests made after installation will be analyzed for two conditions:
+To use Chronicler, [install](https://github.com/apps/chronicler-by-starchart-labs) it on one or more repositories. Pull requests made after installation will be analyzed for two conditions:
 
 1. Did "production" files get modified?
 2. Was a release notes file updated?
@@ -58,4 +58,4 @@ releaseNoteFiles:
       - '**/RELEASE*NOTES*'
 ```
 
-Patterns use the Java PathMatcher (glob syntax)[https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher(java.lang.String)], which are similar to Ant directory patterns. All patterns are case-insensitive.
+Patterns use the Java PathMatcher [glob syntax](https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher(java.lang.String)), which are similar to Ant directory patterns. All patterns are case-insensitive.
