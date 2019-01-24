@@ -30,8 +30,8 @@ If you discover a security vulnerability, contact the development team by e-mail
 
 To use Chronicler, (install)[https://github.com/apps/chronicler-by-starchart-labs] it on one or more repositories. Pull requests made after installation will be analyzed for two conditions:
 
-# Did "production" files get modified?
-# Was a release notes file updated?
+1. Did "production" files get modified?
+2. Was a release notes file updated?
 
 If "production" files were modified, and "release notes" were not, Chronicler will fail a status check on the pull request - otherwise, the pull request passes.
 
