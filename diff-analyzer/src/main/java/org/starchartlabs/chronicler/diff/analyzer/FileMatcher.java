@@ -19,7 +19,13 @@ import javax.annotation.Nullable;
 
 import org.starchartlabs.alloy.core.MoreObjects;
 
-//TODO romeara
+/**
+ * Wrapper for standard {@link PathMatcher} which retains the basic pattern used for easier logging and debugging within
+ * client applications
+ *
+ * @author romeara
+ * @since 0.2.0
+ */
 public class FileMatcher implements PathMatcher {
 
     private final String pathPattern;

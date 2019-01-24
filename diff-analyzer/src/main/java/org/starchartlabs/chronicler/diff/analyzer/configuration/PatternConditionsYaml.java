@@ -17,6 +17,12 @@ import javax.annotation.Nullable;
 
 import org.starchartlabs.alloy.core.MoreObjects;
 
+/**
+ * Represents a sub-set of files to include and exclude when determining file grouping for processing
+ *
+ * @author romeara
+ * @since 0.2.0
+ */
 public class PatternConditionsYaml {
 
     private Collection<String> include;

@@ -19,7 +19,12 @@ import javax.annotation.Nullable;
 
 import org.starchartlabs.alloy.core.MoreObjects;
 
-//TODO romeara
+/**
+ * Represents the file patterns included and excluded when grouping a file based on its location in a project
+ *
+ * @author romeara
+ * @since 0.1.0
+ */
 public class PatternConditions {
 
     private final Set<PathMatcher> include;

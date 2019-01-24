@@ -16,6 +16,12 @@ import javax.annotation.Nullable;
 
 import org.starchartlabs.alloy.core.MoreObjects;
 
+/**
+ * Java representation of YAML configuration file accepted for determining processing behavior
+ *
+ * @author romeara
+ * @since 0.2.0
+ */
 public class AnalysisSettingsYaml {
 
     private PatternConditionsYaml productionFiles;

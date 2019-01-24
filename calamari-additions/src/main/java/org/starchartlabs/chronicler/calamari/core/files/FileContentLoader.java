@@ -35,7 +35,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-//TODO romeara doc
+/**
+ * Represents handling for reading the contents of a file from a GitHub repository
+ *
+ * @author romeara
+ * @since 0.2.0
+ */
 public class FileContentLoader {
 
     private static final Gson GSON = new GsonBuilder().create();
