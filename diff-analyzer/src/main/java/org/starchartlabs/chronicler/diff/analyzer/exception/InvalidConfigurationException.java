@@ -10,7 +10,12 @@
  */
 package org.starchartlabs.chronicler.diff.analyzer.exception;
 
-//TODO romeara
+/**
+ * Represents an error related to parsing a configuration file into a form that can be acted on by the application
+ *
+ * @author romeara
+ * @since 0.2.0
+ */
 public class InvalidConfigurationException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
