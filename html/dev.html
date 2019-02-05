@@ -23,6 +23,43 @@
             <a target="_blank" href="https://github.com/apps/chronicler-dev" class="button">Install Now</a><br>
             <img src="images/checks.png">
             <p>Chronicler adds a check to your GitHub pull requests, which fails if production code was changed without a matching update to the release notes</p>
+            <div id="configuration">
+              <h1>Configuration</h1>
+              <p>You can configure Chronicler to customize what is considered a production file and what is considered a release notes file. Create a YAML file at <span class="highlight">/.starchart-labs/chronicler.yml</span> in your repository. This is not required, and the default values, shown below, have been selected to cover general cases.</p>
+              <div id="config-side-by-side">
+                <div class="tearaway">
+<pre>
+productionFiles:
+   include:
+      - '**/src/**'
+   exclude:
+      - '**/test/**'
+releaseNoteFiles:
+   include:
+      - '**/CHANGE*LOG*'
+      - '**/RELEASE*NOTES*'
+</pre>
+                </div>
+                <div class="instructions">
+                  <p>The configuration shown is the default values. Here is the YAML structure supported for configuration:</p>
+                  <ul>
+                    <li><span class="highlight">productionFiles</span> - Describes what files to consider as production files</li>
+                    <ul>
+                      <li><span class="highlight">include</span> - A list of case-insensitive patterns to consider as production files</li>
+                      <li><span class="highlight">include</span> - A list of case-insensitive patterns to exclude from production files</li>
+                    </ul>
+                    <li><span class="highlight">releaseNoteFiles</span> - Describes what files to consider as release notes files</li>
+                    <ul>
+                      <li><span class="highlight">include</span> - A list of case-insensitive patterns to consider as release notes files</li>
+                      <li><span class="highlight">include</span> - A list of case-insensitive patterns to exclude from release notes files</li>
+                    </ul>
+                  </ul>
+                  <p>All patterns from the instructions above are Java PathMatcher <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher(java.lang.String)">Glob Syntax</a></p>
+                </div>
+              </div>
+            </div>
+        </div>
+
         </div>
 
         <div id="footer">
