@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.2.0]
 ### Added
 - Ability to configure what is considered a release note or production file
 - Fix HTTP responses not being closed properly by library via update to Calamari 0.2.1
