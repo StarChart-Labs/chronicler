@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Ability to configure what is considered a release note or production file
+- Fix HTTP responses not being closed properly by library via update to Calamari 0.2.1
 
 ## [0.1.0]
 ### Added
