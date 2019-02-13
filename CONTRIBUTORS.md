@@ -1,4 +1,4 @@
-## Code Release Process
+# Code Release Process
 
 * Run a full build via `./gradlew clean build`
 * Update the version number to remove the "-SNAPSHOT" designation. All version numbers should be a fully-qualified semantic version of form `<major>.<minor>.<micro>`
