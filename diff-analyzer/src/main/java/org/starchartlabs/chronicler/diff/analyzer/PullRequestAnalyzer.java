@@ -11,14 +11,20 @@
 package org.starchartlabs.chronicler.diff.analyzer;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Spliterator;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
-import org.starchartlabs.chronicler.calamari.core.paging.PageReader;
+import org.starchartlabs.chronicler.calamari.core.paging.GitHubPageProvider;
+import org.starchartlabs.chronicler.calamari.core.paging.PageProvider;
+import org.starchartlabs.chronicler.calamari.core.paging.PageSpliterator;
+import org.starchartlabs.chronicler.calamari.core.paging.ShortCircuitSpliterator;
 import org.starchartlabs.chronicler.diff.analyzer.exception.InvalidConfigurationException;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.Requests;
@@ -80,10 +86,17 @@ public class PullRequestAnalyzer {
                     .addQueryParameter("per_page", "30")
                     .build();
 
-            FilePathAnalysis pathAnalysis = new PageReader(accessToken, Requests.USER_AGENT).page(url.toString())
-                    .map(element -> new FilePathAnalysis(settings, element))
-                    .until(Collectors.reducing(FilePathAnalysis::new),
-                            o -> o.map(FilePathAnalysis::isComplete).orElse(false))
+            PageProvider<FilePathAnalysis> pageProvider = GitHubPageProvider
+                    .gson(url.toString(), accessToken, Requests.USER_AGENT)
+                    .map(element -> new FilePathAnalysis(settings, element));
+
+            Spliterator<FilePathAnalysis> spliterator = new ShortCircuitSpliterator<>(
+                    new PageSpliterator<>(pageProvider),
+                    (Optional<FilePathAnalysis> a, FilePathAnalysis b) -> b.accumulate(a),
+                    FilePathAnalysis::isComplete);
+
+            FilePathAnalysis pathAnalysis = StreamSupport.stream(spliterator, false)
+                    .collect(Collectors.reducing(FilePathAnalysis::new))
                     .orElse(new FilePathAnalysis());
 
             AnalysisResults results = new AnalysisResults(pathAnalysis.containsProductionFiles(),
@@ -153,6 +166,12 @@ public class PullRequestAnalyzer {
         private FilePathAnalysis(boolean production, boolean releaseNote) {
             this.production = production;
             this.releaseNote = releaseNote;
+        }
+
+        public FilePathAnalysis accumulate(Optional<FilePathAnalysis> accumulated) {
+            Objects.requireNonNull(accumulated);
+
+            return accumulated.map(a -> new FilePathAnalysis(a, this)).orElse(this);
         }
 
         public boolean containsProductionFiles() {
