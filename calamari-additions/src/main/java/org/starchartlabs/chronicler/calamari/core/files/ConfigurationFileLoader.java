@@ -41,27 +41,27 @@ import okhttp3.ResponseBody;
  * @author romeara
  * @since 0.2.0
  */
-public class FileContentLoader {
+public class ConfigurationFileLoader {
 
     private static final Gson GSON = new GsonBuilder().create();
 
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final InstallationAccessToken installationToken;
-
     private final String userAgent;
 
-    public FileContentLoader(InstallationAccessToken installationToken, String userAgent) {
-        this.installationToken = Objects.requireNonNull(installationToken);
+    private final String path;
+
+    public ConfigurationFileLoader(String userAgent, String path) {
         this.userAgent = Objects.requireNonNull(userAgent);
+        this.path = Objects.requireNonNull(path);
     }
 
     // https://developer.github.com/v3/repos/contents/
-    public Optional<String> loadContents(String repositoryUrl, String ref, String path) {
+    public Optional<String> loadContents(InstallationAccessToken installationToken, String repositoryUrl, String ref) {
+        Objects.requireNonNull(installationToken);
         Objects.requireNonNull(repositoryUrl);
         Objects.requireNonNull(ref);
-        Objects.requireNonNull(path);
 
         String result = null;
 

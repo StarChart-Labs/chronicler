@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ## Changed
 - Switched from psuedo-stream GitHub paging mechanism to a spliterator-based implementation
+- Replaced local webhook verifier with calamari-core implementation
+- Refactored use pattern of configuration file reader
 
 ## [0.2.0]
 ### Added
