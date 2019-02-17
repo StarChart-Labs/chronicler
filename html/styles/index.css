@@ -154,10 +154,16 @@ li {
 }
 
 #footer {
-    width: 100%;
     margin: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     font-size: 0.9rem;
     font-family: sans-serif;
+}
+
+#footer p {
+  margin: 0 0 25px 0;
 }
 
 /*
