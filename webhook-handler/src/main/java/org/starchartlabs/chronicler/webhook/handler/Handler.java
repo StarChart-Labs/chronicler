@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.starchartlabs.alloy.core.Suppliers;
-import org.starchartlabs.chronicler.calamari.core.webhook.WebhookVerifier;
+import org.starchartlabs.calamari.core.webhook.WebhookVerifier;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.webhook.InstallationEvent;
 import org.starchartlabs.chronicler.github.model.webhook.InstallationRepositoriesEvent;
