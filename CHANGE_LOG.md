@@ -5,7 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-### Changed
+## Changed
+- Switched from psuedo-stream GitHub paging mechanism to a spliterator-based implementation
 - Replaced local webhook verifier with calamari-core implementation
 - Refactored use pattern of configuration file reader
 
