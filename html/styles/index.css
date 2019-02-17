@@ -166,6 +166,16 @@ li {
   margin: 0 0 25px 0;
 }
 
+@media(max-width: 1000px) {
+  #config-side-by-side {
+    flex-direction: column;
+  }
+  .tearaway {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
 /*
  From "GitHub Corners":
     http://tholman.com/github-corners/
