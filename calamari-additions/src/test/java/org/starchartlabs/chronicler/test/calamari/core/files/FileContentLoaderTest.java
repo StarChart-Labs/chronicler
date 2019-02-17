@@ -25,7 +25,7 @@ import org.mockito.MockitoAnnotations;
 import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
 import org.starchartlabs.calamari.core.exception.RequestLimitExceededException;
 import org.starchartlabs.chronicler.calamari.core.MediaTypes;
-import org.starchartlabs.chronicler.calamari.core.files.FileContentLoader;
+import org.starchartlabs.chronicler.calamari.core.files.ConfigurationFileLoader;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -45,13 +45,13 @@ public class FileContentLoaderTest {
     @Mock
     private InstallationAccessToken accessToken;
 
-    private FileContentLoader fileContentLoader;
+    private ConfigurationFileLoader fileContentLoader;
 
     @BeforeMethod
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        fileContentLoader = new FileContentLoader(accessToken, "userAgent");
+        fileContentLoader = new ConfigurationFileLoader("userAgent", "path.json");
     }
 
     @AfterMethod
@@ -60,28 +60,28 @@ public class FileContentLoaderTest {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void constructNullInstallationToken() throws Exception {
-        new FileContentLoader(null, "userAgent");
+    public void constructNullUserAgent() throws Exception {
+        new ConfigurationFileLoader(null, "path.json");
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void constructNullUserAgent() throws Exception {
-        new FileContentLoader(accessToken, null);
+    public void constructNullPath() throws Exception {
+        new ConfigurationFileLoader("userAgent", null);
+    }
+
+    @Test(expectedExceptions = NullPointerException.class)
+    public void loadContentsNullAccessToken() throws Exception {
+        fileContentLoader.loadContents(null, "repositoryUrl", "ref");
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void loadContentsNullRepositoryUrl() throws Exception {
-        fileContentLoader.loadContents(null, "ref", "path.json");
+        fileContentLoader.loadContents(accessToken, null, "ref");
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void loadContentsNullRef() throws Exception {
-        fileContentLoader.loadContents("repositoryUrl", null, "path.json");
-    }
-
-    @Test(expectedExceptions = NullPointerException.class)
-    public void loadContentsNullPath() throws Exception {
-        fileContentLoader.loadContents("repositoryUrl", "ref", null);
+        fileContentLoader.loadContents(accessToken, "repositoryUrl", null);
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -100,12 +100,12 @@ public class FileContentLoaderTest {
 
             String repositoryUrl = server.url("/api/repos/" + owner + "/" + repository).toString();
 
-            FileContentLoader contentLoader = new FileContentLoader(accessToken, "userAgent");
+            ConfigurationFileLoader contentLoader = new ConfigurationFileLoader("userAgent", path);
 
             Mockito.when(accessToken.get()).thenReturn("token authToken12345");
 
             try {
-                contentLoader.loadContents(repositoryUrl, ref, path);
+                contentLoader.loadContents(accessToken, repositoryUrl, ref);
             } finally {
                 Assert.assertEquals(server.getRequestCount(), 1);
                 RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
@@ -138,12 +138,12 @@ public class FileContentLoaderTest {
 
             String repositoryUrl = server.url("/api/repos/" + owner + "/" + repository).toString();
 
-            FileContentLoader contentLoader = new FileContentLoader(accessToken, "userAgent");
+            ConfigurationFileLoader contentLoader = new ConfigurationFileLoader("userAgent", path);
 
             Mockito.when(accessToken.get()).thenReturn("token authToken12345");
 
             try {
-                contentLoader.loadContents(repositoryUrl, ref, path);
+                contentLoader.loadContents(accessToken, repositoryUrl, ref);
             } finally {
                 Assert.assertEquals(server.getRequestCount(), 1);
                 RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
@@ -175,12 +175,12 @@ public class FileContentLoaderTest {
 
             String repositoryUrl = server.url("/api/repos/" + owner + "/" + repository).toString();
 
-            FileContentLoader contentLoader = new FileContentLoader(accessToken, "userAgent");
+            ConfigurationFileLoader contentLoader = new ConfigurationFileLoader("userAgent", path);
 
             Mockito.when(accessToken.get()).thenReturn("token authToken12345");
 
             try {
-                Optional<String> result = contentLoader.loadContents(repositoryUrl, ref, path);
+                Optional<String> result = contentLoader.loadContents(accessToken, repositoryUrl, ref);
 
                 Assert.assertNotNull(result);
                 Assert.assertFalse(result.isPresent());
@@ -224,12 +224,12 @@ public class FileContentLoaderTest {
 
             String repositoryUrl = server.url("/api/repos/" + owner + "/" + repository).toString();
 
-            FileContentLoader contentLoader = new FileContentLoader(accessToken, "userAgent");
+            ConfigurationFileLoader contentLoader = new ConfigurationFileLoader("userAgent", path);
 
             Mockito.when(accessToken.get()).thenReturn("token authToken12345");
 
             try {
-                contentLoader.loadContents(repositoryUrl, ref, path);
+                contentLoader.loadContents(accessToken, repositoryUrl, ref);
             } finally {
                 Assert.assertEquals(server.getRequestCount(), 1);
                 RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
@@ -269,12 +269,12 @@ public class FileContentLoaderTest {
 
             String repositoryUrl = server.url("/api/repos/" + owner + "/" + repository).toString();
 
-            FileContentLoader contentLoader = new FileContentLoader(accessToken, "userAgent");
+            ConfigurationFileLoader contentLoader = new ConfigurationFileLoader("userAgent", path);
 
             Mockito.when(accessToken.get()).thenReturn("token authToken12345");
 
             try {
-                Optional<String> result = contentLoader.loadContents(repositoryUrl, ref, path);
+                Optional<String> result = contentLoader.loadContents(accessToken, repositoryUrl, ref);
 
                 Assert.assertNotNull(result);
                 Assert.assertTrue(result.isPresent());
@@ -326,12 +326,12 @@ public class FileContentLoaderTest {
 
             String repositoryUrl = server.url("/api/repos/" + owner + "/" + repository).toString();
 
-            FileContentLoader contentLoader = new FileContentLoader(accessToken, "userAgent");
+            ConfigurationFileLoader contentLoader = new ConfigurationFileLoader("userAgent", path);
 
             Mockito.when(accessToken.get()).thenReturn("token authToken12345");
 
             try {
-                Optional<String> result = contentLoader.loadContents(repositoryUrl, ref, path);
+                Optional<String> result = contentLoader.loadContents(accessToken, repositoryUrl, ref);
 
                 Assert.assertNotNull(result);
                 Assert.assertTrue(result.isPresent());
