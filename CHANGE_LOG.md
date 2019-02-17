@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Switched from psuedo-stream GitHub paging mechanism to a spliterator-based implementation
 - Replaced local webhook verifier with calamari-core implementation
 - Refactored use pattern of configuration file reader
+- Moved machete project to machete-additions to allow creation of common library without overlap
 
 ## [0.2.0]
 ### Added
