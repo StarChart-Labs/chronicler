@@ -3,7 +3,7 @@ dependencies {
     compile project(':calamari-additions')
     compile project(':events')
     compile project(':github-model')
-    compile project(':machete')
+    compile project(':machete-additions')
     
     compile 'com.amazonaws:aws-java-sdk-ssm'
     compile 'com.amazonaws:aws-lambda-java-core'
