@@ -19,12 +19,11 @@ import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.starchartlabs.alloy.core.collections.MoreSpliterators;
+import org.starchartlabs.alloy.core.collections.PageIterator;
 import org.starchartlabs.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
 import org.starchartlabs.chronicler.calamari.core.paging.GitHubPageProvider;
-import org.starchartlabs.chronicler.calamari.core.paging.PageProvider;
-import org.starchartlabs.chronicler.calamari.core.paging.PageSpliterator;
-import org.starchartlabs.chronicler.calamari.core.paging.ShortCircuitSpliterator;
 import org.starchartlabs.chronicler.diff.analyzer.exception.InvalidConfigurationException;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.Requests;
@@ -86,12 +85,12 @@ public class PullRequestAnalyzer {
                     .addQueryParameter("per_page", "30")
                     .build();
 
-            PageProvider<FilePathAnalysis> pageProvider = GitHubPageProvider
+            PageIterator<FilePathAnalysis> pageProvider = GitHubPageProvider
                     .gson(url.toString(), accessToken, Requests.USER_AGENT)
                     .map(element -> new FilePathAnalysis(settings, element));
 
-            Spliterator<FilePathAnalysis> spliterator = new ShortCircuitSpliterator<>(
-                    new PageSpliterator<>(pageProvider),
+            Spliterator<FilePathAnalysis> spliterator = MoreSpliterators.shortCircuit(
+                    MoreSpliterators.ofPaged(pageProvider),
                     (Optional<FilePathAnalysis> a, FilePathAnalysis b) -> b.accumulate(a),
                     FilePathAnalysis::isComplete);
 

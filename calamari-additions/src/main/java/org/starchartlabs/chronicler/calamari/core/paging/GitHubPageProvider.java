@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.starchartlabs.alloy.core.collections.PageIterator;
 import org.starchartlabs.chronicler.calamari.core.MediaTypes;
 
 import com.google.gson.Gson;
@@ -30,7 +31,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class GitHubPageProvider<T> implements PageProvider<T> {
+public class GitHubPageProvider<T> implements PageIterator<T> {
 
     private final Supplier<String> authorizationHeader;
 
@@ -93,7 +94,7 @@ public class GitHubPageProvider<T> implements PageProvider<T> {
     }
 
     @Override
-    public PageProvider<T> trySplit() {
+    public PageIterator<T> trySplit() {
         // TODO romeara Can we find a way to do with page numbers?
         return null;
     }
