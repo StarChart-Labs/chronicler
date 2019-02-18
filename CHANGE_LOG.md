@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Replaced local webhook verifier with calamari-core implementation
 - Refactored use pattern of configuration file reader
 - Moved machete project to machete-additions to allow creation of common library without overlap
+- Fixed GH-81, allowing the Chronicler pull request status check to persist after merge conflict resolution
 - Switched to Alloy-based spliterator implementation for GitHub paging
 
 ## [0.2.0]

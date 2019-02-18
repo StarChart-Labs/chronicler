@@ -121,7 +121,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             logger.info("Received pull request event ({}, pr:{})", event.getLoggableRepositoryName(),
                     event.getAction());
 
-            if (event.isFileChangeType()) {
+            if (event.isCommitChangeType()) {
                 result = new GitHubPullRequestEvent(
                         event.getNumber(),
                         event.getLoggableRepositoryName(),

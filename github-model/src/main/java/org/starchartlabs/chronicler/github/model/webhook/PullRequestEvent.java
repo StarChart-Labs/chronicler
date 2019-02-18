@@ -38,7 +38,7 @@ public class PullRequestEvent {
 
     private static final String EVENT_TYPE = "pull_request";
 
-    private static final Collection<String> FILE_CHANGE_TYPES = Stream.of("opened", "edited")
+    private static final Collection<String> COMMIT_CHANGE_TYPES = Stream.of("opened", "edited", "synchronize")
             .collect(Collectors.toSet());
 
     // PR id (.pull_request.id, number)
@@ -116,8 +116,8 @@ public class PullRequestEvent {
         return headCommitSha;
     }
 
-    public boolean isFileChangeType() {
-        return FILE_CHANGE_TYPES.contains(getAction());
+    public boolean isCommitChangeType() {
+        return COMMIT_CHANGE_TYPES.contains(getAction());
     }
 
     @Override
