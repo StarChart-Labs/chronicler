@@ -23,7 +23,7 @@ import org.starchartlabs.alloy.core.collections.MoreSpliterators;
 import org.starchartlabs.alloy.core.collections.PageIterator;
 import org.starchartlabs.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
-import org.starchartlabs.chronicler.calamari.core.paging.GitHubPageProvider;
+import org.starchartlabs.calamari.core.paging.GitHubPageIterator;
 import org.starchartlabs.chronicler.diff.analyzer.exception.InvalidConfigurationException;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.Requests;
@@ -85,7 +85,7 @@ public class PullRequestAnalyzer {
                     .addQueryParameter("per_page", "30")
                     .build();
 
-            PageIterator<FilePathAnalysis> pageProvider = GitHubPageProvider
+            PageIterator<FilePathAnalysis> pageProvider = GitHubPageIterator
                     .gson(url.toString(), accessToken, Requests.USER_AGENT)
                     .map(element -> new FilePathAnalysis(settings, element));
 

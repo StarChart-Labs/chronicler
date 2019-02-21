@@ -1,6 +1,5 @@
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
-    compile project(':calamari-additions')
     compile project(':events')
     compile project(':github-model')
     compile project(':machete-additions')
