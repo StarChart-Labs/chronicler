@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import org.starchartlabs.chronicler.calamari.core.MediaTypes;
+import org.starchartlabs.calamari.core.MediaTypes;
 import org.starchartlabs.chronicler.github.model.Requests;
 
 import okhttp3.HttpUrl;

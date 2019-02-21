@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 import org.starchartlabs.alloy.core.MoreObjects;
 import org.starchartlabs.calamari.core.auth.InstallationAccessToken;
-import org.starchartlabs.chronicler.calamari.core.files.ConfigurationFileLoader;
+import org.starchartlabs.calamari.core.content.FileContentLoader;
 import org.starchartlabs.chronicler.diff.analyzer.configuration.AnalysisSettingsYaml;
 import org.starchartlabs.chronicler.diff.analyzer.configuration.PatternConditionsYaml;
 import org.starchartlabs.chronicler.diff.analyzer.exception.InvalidConfigurationException;
@@ -74,9 +74,9 @@ public class AnalysisSettings {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(path);
 
-        ConfigurationFileLoader contentLoader = new ConfigurationFileLoader(Requests.USER_AGENT, path);
+        FileContentLoader contentLoader = new FileContentLoader(Requests.USER_AGENT);
 
-        return contentLoader.loadContents(accessToken, repositoryUrl, branch)
+        return contentLoader.loadContents(accessToken, repositoryUrl, branch, path)
                 .flatMap(AnalysisSettings::fromYaml)
                 .orElse(DEFAULT_SETTINGS);
     }
