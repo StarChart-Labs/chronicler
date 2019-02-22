@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed GH-81, allowing the Chronicler pull request status check to persist after merge conflict resolution
 - Switched to Alloy-based spliterator implementation for GitHub paging
 - Replaced calamari-additions project with Calamari library calls
+- Replaced machete-additions project with Machete library calls
 
 ## [0.2.0]
 ### Added

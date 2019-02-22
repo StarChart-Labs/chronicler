@@ -1,5 +1,4 @@
 include 'events'
 include 'github-model'
-include 'machete-additions'
 include 'webhook-handler'
 include 'diff-analyzer'

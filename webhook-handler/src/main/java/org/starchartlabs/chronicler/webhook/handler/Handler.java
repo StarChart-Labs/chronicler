@@ -24,7 +24,7 @@ import org.starchartlabs.chronicler.github.model.webhook.InstallationEvent;
 import org.starchartlabs.chronicler.github.model.webhook.InstallationRepositoriesEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PingEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PullRequestEvent;
-import org.starchartlabs.chronicler.machete.SecuredParameter;
+import org.starchartlabs.machete.ssm.parameter.SecuredParameter;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;

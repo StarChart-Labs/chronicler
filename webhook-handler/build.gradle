@@ -2,7 +2,6 @@
 dependencies {
     compile project(':events')
     compile project(':github-model')
-    compile project(':machete-additions')
     
     compile 'com.amazonaws:aws-java-sdk-cloudwatch'
     compile 'com.amazonaws:aws-java-sdk-sns'
@@ -12,6 +11,7 @@ dependencies {
     compile 'com.google.code.findbugs:jsr305'
     compile 'org.slf4j:slf4j-api'
     compile 'org.starchartlabs.calamari:calamari-core'
+    compile 'org.starchartlabs.machete:machete-ssm'
     
     runtime 'com.amazonaws:aws-lambda-java-log4j2'
     runtime 'org.apache.logging.log4j:log4j-core'

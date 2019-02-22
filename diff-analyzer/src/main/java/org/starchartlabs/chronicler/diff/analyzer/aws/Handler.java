@@ -19,9 +19,9 @@ import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.calamari.core.auth.ApplicationKey;
 import org.starchartlabs.chronicler.diff.analyzer.PullRequestAnalyzer;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
-import org.starchartlabs.chronicler.machete.SnsEvents;
-import org.starchartlabs.chronicler.machete.SecuredRsaKeyParameter;
-import org.starchartlabs.chronicler.machete.StringParameter;
+import org.starchartlabs.machete.sns.SnsEvents;
+import org.starchartlabs.machete.ssm.parameter.SecuredRsaKeyParameter;
+import org.starchartlabs.machete.ssm.parameter.StringParameter;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
