@@ -1,6 +1,5 @@
 # For full config options, check the docs: docs.serverless.com
 
-# TODO Document manual setup (secure parameter store values, github app, etc) required before deploy
 # GitHub App
 # CNAME for URL (Google Domains)
 # /${self:provider.stage}/${self:service}/github/webhook-secret (encrypted)
@@ -75,7 +74,6 @@ package:
   individually: true
 
 # TODO external various names and keys to variables
-# TODO Figure out resource statement for putting metric data
 functions:
   webhook-handler:
     package:
@@ -100,6 +98,7 @@ functions:
     environment:
         GITHUB_WEBHOOK_SECRET_SSM: /${self:provider.stage}/${self:service}/github/webhook-secret
         SNS_TOPIC_ARN: { Fn::Join: [":", ["arn:aws:sns", { "Ref": "AWS::Region" }, { "Ref" : "AWS::AccountId" }, "${self:custom.topic.diff}" ] ]  }
+        METRIC_NAMESPACE: ${self:service}/${self:provider.stage}
     events:
         - http:
             path: github/webhooks

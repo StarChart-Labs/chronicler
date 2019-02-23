@@ -50,6 +50,8 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     private static final String SNS_TOPIC_ARN = System.getenv("SNS_TOPIC_ARN");
 
+    private static final String METRIC_NAMESPACE = System.getenv("METRIC_NAMESPACE");;
+
     private static final AmazonSNS SNS_CLIENT = AmazonSNSClientBuilder.defaultClient();
 
     private static final AmazonCloudWatch CLOUDWATCH_CLIENT = AmazonCloudWatchClientBuilder.defaultClient();
@@ -165,6 +167,8 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     }
 
     private void recordInstallation(int installations) {
+        logger.info("Recording {} installations to AWS namespace {}", installations, METRIC_NAMESPACE);
+
         Dimension dimension = new Dimension()
                 .withName("INSTALLATIONS")
                 .withValue("REPOSITORIES");
@@ -175,9 +179,8 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
                 .withValue(Integer.valueOf(installations).doubleValue())
                 .withDimensions(dimension);
 
-        // TODO romeara setup namespace as an env variable
         PutMetricDataRequest request = new PutMetricDataRequest()
-                .withNamespace("chronicler/dev")
+                .withNamespace(METRIC_NAMESPACE)
                 .withMetricData(datum);
 
         CLOUDWATCH_CLIENT.putMetricData(request);
