@@ -25,7 +25,7 @@ Deployment of Chronicler is done in the context of a "stage". A "stage" is somet
 To deploy Chronicler for a given stage, the following manual setup is required once:
 
  - Create a GitHub App configuration for the stage
- 	- Using the description in `github-app.yml`, setup a GitHub app, replacing the title and URLs to match the stage being setup
+ 	- Using the description in [the GitHub App documentation](./GITHUB_APP_SETTINGS.md), setup a GitHub App, replacing the title and URLs to match the stage being setup
  - Configure a Webhook Secret and download the secret key
  	- These will be added to AWS in the next step, retain them until that time
  - On [AWS System Manager](https://console.aws.amazon.com/systems-manager), login with an admin StarChart-Labs account and create the following values in Parameter Store:

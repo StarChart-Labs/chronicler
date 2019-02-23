@@ -6,7 +6,7 @@ GitHub integration which validates whether release notes are updated when produc
 
 ## Contributing
 
-Information for how to contribute to Chronicler can be found in [the contribution guidelines](./CONTRIBUTING.md)
+Information for how to contribute to Chronicler can be found in [the contribution guidelines](./docs/CONTRIBUTING.md)
 
 ## Legal
 
@@ -14,7 +14,7 @@ Chronicler is distributed under the [Apache 2.0 License](https://www.apache.org/
 
 ```
 StarChart-Labs Chronicler Web Application
-Copyright 2017 StarChart Labs Authors.
+Copyright 2017-2019 StarChart Labs Authors.
 
 This product includes software developed at
 StarChart Labs (http://www.starchartlabs.org/).
