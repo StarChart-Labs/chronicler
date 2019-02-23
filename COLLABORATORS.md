@@ -1,10 +1,16 @@
 # Code Release Process
 
-* Run a full build via `./gradlew clean build`
 * Update the version number to remove the "-SNAPSHOT" designation. All version numbers should be a fully-qualified semantic version of form `<major>.<minor>.<micro>`
 * Change the header "Unreleased" in CHANGE_LOG.md to the target release number, and create a new "Unreleased" header above it
+* Run a full build via `./gradlew clean build`
+  * If there are any errors, stash the changes to the version number and changelog until the issue can be corrected and merged to master as a separate commit/issue
+* Perform a test deployment to the "dev" site via `serverless deploy` (Ensure you first perform the one-time setup below if this is your first deployment)
+  * Deployment will load onto chronicler-dev.starchartlabs.org. Verify HTML updated, and install button correctly links to the App page
 * Commit the version number and CHANGE_LOG updates
 * Tag the git repository with the fully-qualified semantic version number
+* Deploy to the production site via `serverless deploy --stage production`
+  * Verify the HTML updated, and the install button leads to the App page
+  * Ensure App is public! Test install button in a private browser window to ensure non-starchart individuals may access the app
 * Change version number to `<released version> + 1 micro` + `-SNAPSHOT`
 * Commit to git
 * Push changes and tag to GitHub
@@ -33,10 +39,3 @@ To deploy Chronicler for a given stage, the following manual setup is required o
  - The last one-time step will be to go to [AWS API Gateway Custom Domain Names]
    - Create the appropriate domain name
    - Find the "Target Domain Name" entry, and add a DNS record on Google Domains for the target URL
- 	
-# Serverless Deployment
-
-Assuming the serverless command line tool has been installed, and setup for authentication as per the Serverless instructions, updated code can be deployed by:
-
- - Running `./gradlew clean build` to rebuild deployable ZIP archives
- - Running `serverless deploy` to deploy the new set of code
