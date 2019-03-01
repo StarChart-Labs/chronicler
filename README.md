@@ -1,6 +1,6 @@
 # Chronicler
 
-[![Travis CI](https://img.shields.io/travis/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.org/StarChart-Labs/chronicler)
+[![Travis CI](https://img.shields.io/travis/com/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.com/StarChart-Labs/chronicler)
 
 GitHub integration which validates whether release notes are updated when production code is changed
 
