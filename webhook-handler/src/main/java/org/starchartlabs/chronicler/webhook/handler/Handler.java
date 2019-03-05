@@ -20,10 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.calamari.core.webhook.WebhookVerifier;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
-import org.starchartlabs.chronicler.github.model.webhook.InstallationEvent;
-import org.starchartlabs.chronicler.github.model.webhook.InstallationRepositoriesEvent;
-import org.starchartlabs.chronicler.github.model.webhook.PingEvent;
-import org.starchartlabs.chronicler.github.model.webhook.PullRequestEvent;
 import org.starchartlabs.machete.ssm.parameter.SecuredParameter;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
@@ -42,6 +38,9 @@ import com.amazonaws.services.sns.model.PublishRequest;
 
 public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
+    /** Logger reference to output information to the application log files */
+    private static final Logger logger = LoggerFactory.getLogger(Handler.class);
+
     private static final String GITHUB_HASH_HEADER = "X-Hub-Signature";
 
     private static final String GITHUB_EVENT_HEADER = "X-GitHub-Event";
@@ -56,18 +55,18 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     private static final AmazonCloudWatch CLOUDWATCH_CLIENT = AmazonCloudWatchClientBuilder.defaultClient();
 
-    /** Logger reference to output information to the application log files */
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private final WebhookVerifier webhookVerifier;
+
+    private final WebhookEventConverter webhookEventConverter;
 
     // Provided for instantiation by AWS Lambda
     public Handler() {
-        this(new WebhookVerifier(getWebhookSecretSupplier()));
+        this(new WebhookVerifier(getWebhookSecretSupplier()), new WebhookEventConverter(Handler::recordInstallation));
     }
 
-    public Handler(WebhookVerifier webhookVerifier) {
+    public Handler(WebhookVerifier webhookVerifier, WebhookEventConverter webhookEventConverter) {
         this.webhookVerifier = Objects.requireNonNull(webhookVerifier);
+        this.webhookEventConverter = Objects.requireNonNull(webhookEventConverter);
     }
 
     @Override
@@ -89,7 +88,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             String eventType = input.getHeaders().get(GITHUB_EVENT_HEADER);
             String body = input.getBody();
 
-            Optional<GitHubPullRequestEvent> snsEvent = handleEvent(eventType, body);
+            Optional<GitHubPullRequestEvent> snsEvent = webhookEventConverter.handleEvent(eventType, body);
 
             snsEvent
             .map(GitHubPullRequestEvent::toJson)
@@ -109,64 +108,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
                 .withMessage(eventBody);
     }
 
-    // TODO romeara move out of handler
-    private Optional<GitHubPullRequestEvent> handleEvent(String eventType, String body) {
-        GitHubPullRequestEvent result = null;
-
-        if (PingEvent.isCompatibleWithEventType(eventType)) {
-            PingEvent event = PingEvent.fromJson(body);
-
-            logger.info("GitHub Ping: {}", event.getZen());
-        } else if (PullRequestEvent.isCompatibleWithEventType(eventType)) {
-            PullRequestEvent event = PullRequestEvent.fromJson(body);
-
-            logger.info("Received pull request event ({}, pr:{})", event.getLoggableRepositoryName(),
-                    event.getAction());
-
-            if (event.isCommitChangeType()) {
-                result = new GitHubPullRequestEvent(
-                        event.getNumber(),
-                        event.getLoggableRepositoryName(),
-                        event.getPullRequestUrl(),
-                        event.getBaseRepositoryUrl(),
-                        event.getBaseRef(),
-                        event.getPullRequestStatusesUrl(),
-                        event.getHeadCommitSha());
-            }
-        } else if (InstallationEvent.isCompatibleWithEventType(eventType)) {
-            InstallationEvent event = InstallationEvent.fromJson(body);
-
-            event.getLoggableRepositoryNames().stream()
-            .forEach(repo -> logger.info("GitHub Install: {}: {}", event.getAction(), repo));
-
-            if (event.getLoggableRepositoryNames().isEmpty()) {
-                logger.info("GitHub Account Install: {}: {}", event.getAction(), event.getAccountName());
-            }
-
-            if (event.isInstallation()) {
-                recordInstallation(event.getLoggableRepositoryNames().size());
-            }
-        } else if (InstallationRepositoriesEvent.isCompatibleWithEventType(eventType)) {
-            InstallationRepositoriesEvent event = InstallationRepositoriesEvent.fromJson(body);
-
-            event.getLoggableRepositoryNames().stream()
-            .forEach(repo -> logger.info("GitHub Install: {}: {}", event.getAction(), repo));
-
-            if (event.getLoggableRepositoryNames().isEmpty()) {
-                logger.info("GitHub Account Install: {}: {}", event.getAction(), event.getAccountName());
-            }
-
-            if (event.isInstallation()) {
-                recordInstallation(event.getLoggableRepositoryNames().size());
-            }
-        } else {
-            logger.debug("Received unhandled event type: {}", eventType);
-        }
-
-        return Optional.ofNullable(result);
-    }
-
-    private void recordInstallation(int installations) {
+    private static void recordInstallation(int installations) {
         logger.info("Recording {} installations to AWS namespace {}", installations, METRIC_NAMESPACE);
 
         Dimension dimension = new Dimension()
