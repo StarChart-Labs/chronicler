@@ -5,17 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Moved webhook event handling out of AWS handler class
 
 ## [0.2.3]
-## Changed
+### Changed
 - GH-92: Made the namespace of the metric for installations counts configurable per deployment
 
 ## [0.2.2]
-## Changed
+### Changed
 - Fixed URLs for installation button
 
 ## [0.2.1]
-## Changed
+### Changed
 - Replaced local webhook verifier with calamari-core implementation
 - Refactored use pattern of configuration file reader
 - Moved machete project to machete-additions to allow creation of common library without overlap
