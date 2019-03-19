@@ -40,6 +40,8 @@ allprojects{
     apply plugin: 'org.starchartlabs.flare.dependency-insight'
 
     dependencyRecommendations {
+        strategy OverrideTransitives
+        
         propertiesFile file: file("${rootDir}/dependencies.properties")
     }
 
