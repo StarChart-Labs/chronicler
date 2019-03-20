@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Moved webhook event handling out of AWS handler class
 - Updated external dependencies to latest micro/minor versions
 - Overrode Jackson dependency version from AWS SDK to version not flagged with vulnerabilities
+- Add badge for READMEs
 
 ## [0.2.3]
 ### Changed
