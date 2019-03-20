@@ -91,15 +91,19 @@ a.button:hover {
     background-color: #56586d;
 }
 
-#configuration {
+.infoblob {
   font-size: 1.1rem;
-  margin: 30px 5%;
+  margin: 10px 5%;
   text-align: left;
-  padding: 50px;
+  padding: 20px 50px 30px 50px;
 }
 
-#configuration p {
-  margin: 0;
+.infoblob p {
+  margin: 0 !important;
+}
+
+.infoblob img {
+  margin: 15px 0px;
 }
 
 h1 {
@@ -136,6 +140,10 @@ h1 {
   background-color: #c4b097;
   background-image: url('../images/noise.png');
   bottom: -4px;
+}
+
+.tearaway pre {
+  white-space: pre-wrap;
 }
 
 .instructions {
