@@ -20,7 +20,35 @@
             <a target="_blank" href="https://github.com/apps/starchart-labs-chronicler" class="button">Install Now</a><br>
             <img src="images/checks.png">
             <p>Chronicler adds a check to your GitHub pull requests, which fails if production code was changed without a matching update to the release notes</p>
-            <div id="configuration">
+            <div class="infoblob" id="get-badge">
+              <h1>Tell The World</h1>
+              <p>Let people visiting your project know that you keep your changelogs up-to-date with this badge! Here are some samples for adding it to a README</p>
+              <img src="images/changelog-chronicler-success.svg">
+              <p class="fine-print">Badge image generated using <a target="_blank" href="https://shields.io">shields.io</a></p>
+              <div class="tearaway">
+<pre>
+README.md:
+
+[![Changelog validated by Chronicler](https://chronicler.starchartlabs.org/images/changelog-chronicler-success.svg)](https://chronicler.starchartlabs.org/)
+
+
+HTML:
+
+&lt;a href="https://chronicler.starchartlabs.org/"&gt;
+  &lt;img src="https://chronicler.starchartlabs.org/images/changelog-chronicler-success.svg" alt="Changelog validated by Chronicler"&gt;
+&lt;/a&gt;
+
+
+reStructuredText:
+
+.. image:: https://chronicler.starchartlabs.org/images/changelog-chronicler-success.svg
+    :target: https://chronicler.starchartlabs.org/
+    :alt: Changelog validated by Chronicler
+
+</pre>
+              </div>
+            </div>
+            <div class="infoblob" id="configuration">
               <h1>Configuration</h1>
               <p>You can configure Chronicler to customize what is considered a production file and what is considered a release notes file. Create a YAML file at <span class="highlight">/.starchart-labs/chronicler.yml</span> in your repository. This is not required, and the default values, shown below, have been selected to cover general cases.</p>
               <div id="config-side-by-side">
