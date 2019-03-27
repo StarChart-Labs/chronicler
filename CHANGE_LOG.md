@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.3.0]
 ### Changed
 - Moved webhook event handling out of AWS handler class
 - Updated external dependencies to latest micro/minor versions
