@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- GH-102 Fix file copyright headers to match the declared license of Apache 2.0
 
 ## [0.3.0]
 ### Changed
