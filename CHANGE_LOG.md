@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 - GH-102 Fix file copyright headers to match the declared license of Apache 2.0
+- GH-103 Update to Calamari 0.3.3 to address potential timing attack vulnerability
 
 ## [0.3.0]
 ### Changed
