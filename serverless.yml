@@ -66,6 +66,8 @@ custom:
             empty: true
             globs: 
               - '${self:provider.stage}.html'
+              - 'privacy-policy.html'
+              - 'terms.html'
               - '**/images/**/*'
               - '**/styles/**/*'
 
@@ -184,6 +186,74 @@ resources:
             - "RootResourceId"
         RestApiId:
           Ref: "ApiGatewayRestApi"
+    PrivacyPolicy: 
+      Type: "AWS::ApiGateway::Resource"
+      Properties: 
+        RestApiId: 
+          Ref: "ApiGatewayRestApi"
+        ParentId: 
+          Fn::GetAtt: 
+            - "ApiGatewayRestApi"
+            - "RootResourceId"
+        PathPart: "privacy-policy.html"
+    TermsOfService: 
+      Type: "AWS::ApiGateway::Resource"
+      Properties: 
+        RestApiId: 
+          Ref: "ApiGatewayRestApi"
+        ParentId: 
+          Fn::GetAtt: 
+            - "ApiGatewayRestApi"
+            - "RootResourceId"
+        PathPart: "terms.html"   
+    PrivacyPolicyGet:
+      Type: "AWS::ApiGateway::Method"
+      Properties:
+        ResourceId:
+           Ref: "PrivacyPolicy"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+        ApiKeyRequired: false
+        AuthorizationType: NONE
+        HttpMethod: GET
+        MethodResponses:
+          - StatusCode: 200
+            ResponseParameters:
+                method.response.header.Content-Type: "'text/html'"
+        Integration:
+          Credentials: arn:aws:iam::#{AWS::AccountId}:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          IntegrationHttpMethod: GET
+          IntegrationResponses:
+            - StatusCode: 200
+              ResponseParameters:
+                method.response.header.Content-Type: "'text/html'"
+          PassthroughBehavior: WHEN_NO_MATCH
+          Type: AWS
+          Uri: arn:aws:apigateway:us-east-1:s3:path/${self:service}-${self:provider.stage}-statichomepagebucket/privacy-policy.html    
+    TermsOfServiceGet:
+      Type: "AWS::ApiGateway::Method"
+      Properties:
+        ResourceId:
+           Ref: "TermsOfService"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+        ApiKeyRequired: false
+        AuthorizationType: NONE
+        HttpMethod: GET
+        MethodResponses:
+          - StatusCode: 200
+            ResponseParameters:
+                method.response.header.Content-Type: "'text/html'"
+        Integration:
+          Credentials: arn:aws:iam::#{AWS::AccountId}:role/${self:service}-${self:provider.stage}-us-east-1-readS3Role
+          IntegrationHttpMethod: GET
+          IntegrationResponses:
+            - StatusCode: 200
+              ResponseParameters:
+                method.response.header.Content-Type: "'text/html'"
+          PassthroughBehavior: WHEN_NO_MATCH
+          Type: AWS
+          Uri: arn:aws:apigateway:us-east-1:s3:path/${self:service}-${self:provider.stage}-statichomepagebucket/terms.html      
     ImageList: 
       Type: "AWS::ApiGateway::Resource"
       Properties: 
