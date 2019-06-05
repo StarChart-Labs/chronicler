@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.0]
 ### Added
 - Added privacy-policy and terms HTML pages
 - GH-107 Added handling for marketplace events
