@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.chronicler.github.model.webhook.InstallationEvent;
 import org.starchartlabs.chronicler.github.model.webhook.InstallationRepositoriesEvent;
+import org.starchartlabs.chronicler.github.model.webhook.MarketplaceEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PingEvent;
 import org.starchartlabs.chronicler.github.model.webhook.PullRequestEvent;
 
@@ -95,6 +96,11 @@ public class WebhookEventConverter {
             if (event.isInstallation()) {
                 installationRecorder.accept(event.getLoggableRepositoryNames().size());
             }
+        } else if (MarketplaceEvent.isCompatibleWithEventType(eventType)) {
+            MarketplaceEvent event = MarketplaceEvent.fromJson(body);
+
+            logger.info("Marketplace action {} performed by {} ({})", event.getAction(), event.getAccountLogin(),
+                    event.getAccountType());
         } else {
             logger.debug("Received unhandled event type: {}", eventType);
         }
