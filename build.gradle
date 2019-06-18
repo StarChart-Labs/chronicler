@@ -4,9 +4,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath group: 'com.netflix.nebula', name: 'nebula-dependency-recommender', version: '4.2.0'
-        classpath group: 'org.starchartlabs.flare', name: 'flare-operations-plugins', version: '1.0.0'
-        classpath group: 'org.starchartlabs.lockdown', name: 'lockdown-gradle-plugin', version: '2.0.0'
+        classpath 'com.netflix.nebula:nebula-dependency-recommender:4.2.0'
+        classpath 'org.starchartlabs.flare:flare-operations-plugins:1.1.0'
+        classpath 'org.starchartlabs.flare:flare-publishing-plugins:0.3.0'
     }
 }
 
@@ -33,9 +33,7 @@ sonarqube {
 }
 
 allprojects{
-    apply plugin: 'java'
     apply plugin: 'eclipse'
-    apply plugin: 'jacoco'
     apply plugin: 'nebula.dependency-recommender'
     apply plugin: 'org.starchartlabs.flare.dependency-insight'
 
@@ -45,15 +43,10 @@ allprojects{
         propertiesFile file: file("${rootDir}/dependencies.properties")
     }
 
-    group = 'org.starchartlabs.chronicler'
-
-    sourceCompatibility = "${javaVersion}"
-
-    //Always download sources, to allow debugging, and use Eclipse containers for greater portability
+    //Always download sources, to allow debugging
     eclipse {
         classpath {
             downloadSources=true
-            containers = [ "org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-${sourceCompatibility}".toString() ]
         }
     }
 
@@ -64,35 +57,17 @@ allprojects{
 }
 
 subprojects{
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
     apply plugin: 'maven'
     apply plugin: 'org.starchartlabs.flare.increase-test-logging'
-
-    //All projects should provide source code and javadoc, and upload these with any released artifacts
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
-    }
+    apply plugin: 'org.starchartlabs.flare.source-jars'
 
     //Setup default test behavior, including failure logging
     test {
         useTestNG() {
             useDefaultListeners = true
         }
-    }
-
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
     }
 
     sonarqube {
@@ -105,7 +80,3 @@ subprojects{
         }
     }
 }
-
-// Stage task for Heroku deployment
-task stage(dependsOn: ['main.webapp:distCapsule', 'build', 'clean'])
-build.mustRunAfter clean
