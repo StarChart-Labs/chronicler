@@ -5,37 +5,17 @@ buildscript {
     }
     dependencies {
         classpath 'com.netflix.nebula:nebula-dependency-recommender:4.2.0'
-        classpath 'org.starchartlabs.flare:flare-operations-plugins:1.1.0'
+        classpath 'org.starchartlabs.flare:flare-operations-plugins:2.0.0'
         classpath 'org.starchartlabs.flare:flare-publishing-plugins:0.3.0'
     }
 }
 
-plugins {
-    id 'org.sonarqube' version '2.5'
-}
-
 apply plugin: 'org.starchartlabs.flare.merge-coverage-reports'
-
-if (project.hasProperty('sonarLogin')) {
-    System.setProperty('sonar.login', "${sonarLogin}")
-}
-
-sonarqube {
-    properties {
-        property 'sonar.projectName', 'Chronicler'
-        property 'sonar.projectKey', 'org.starchartlabs.chronicler:chronicler'
-        property 'sonar.organization', 'starchart-labs'
-        property 'sonar.junit.reportsPath', file("${buildDir}/test-results/test")
-        property 'sonar.core.codeCoveragePlugin', 'jacoco'
-        property 'sonar.jacoco.reportPaths', "${buildDir}/jacoco/test.exec"
-        property 'sonar.host.url', 'https://sonarcloud.io'
-    }
-}
 
 allprojects{
     apply plugin: 'eclipse'
     apply plugin: 'nebula.dependency-recommender'
-    apply plugin: 'org.starchartlabs.flare.dependency-insight'
+    apply plugin: 'org.starchartlabs.flare.dependency-reporting'
 
     dependencyRecommendations {
         strategy OverrideTransitives
@@ -43,7 +23,7 @@ allprojects{
         propertiesFile file: file("${rootDir}/dependencies.properties")
     }
 
-    //Always download sources, to allow debugging
+    // Always download sources, to allow debugging
     eclipse {
         classpath {
             downloadSources=true
@@ -63,20 +43,10 @@ subprojects{
     apply plugin: 'org.starchartlabs.flare.increase-test-logging'
     apply plugin: 'org.starchartlabs.flare.source-jars'
 
-    //Setup default test behavior, including failure logging
+    // Setup default test behavior, including failure logging
     test {
         useTestNG() {
             useDefaultListeners = true
-        }
-    }
-
-    sonarqube {
-        properties {
-            property 'sonar.projectKey', "${project.group}:chronicler:${project.name}"
-            property 'sonar.junit.reportsPath', file("${buildDir}/test-results/test")
-            property 'sonar.core.codeCoveragePlugin', 'jacoco'
-            property 'sonar.jacoco.reportPaths', "${buildDir}/jacoco/test.exec"
-            properties['sonar.sources'] = sourceSets.main.java.srcDirs.findAll { it.exists() && !it.path.contains('resources') } ?: []
         }
     }
 }
