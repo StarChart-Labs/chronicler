@@ -47,12 +47,17 @@ public class InstallationEvent {
 
     private final String accountName;
 
+    // install type (repository_selection) [selected|all] (unsure on "all" syntax)
+    private final String installationType;
+
     // Repositories (account.name/repositories[].(name|<private repository>)) (str[])
     private final List<String> loggableRepositoryNames;
 
-    public InstallationEvent(String action, String accountName, List<String> loggableRepositoryNames) {
+    public InstallationEvent(String action, String accountName, String installationType,
+            List<String> loggableRepositoryNames) {
         this.action = Objects.requireNonNull(action);
         this.accountName = Objects.requireNonNull(accountName);
+        this.installationType = Objects.requireNonNull(installationType);
         this.loggableRepositoryNames = Objects.requireNonNull(loggableRepositoryNames);
     }
 
@@ -64,6 +69,11 @@ public class InstallationEvent {
         return accountName;
     }
 
+
+    public String getInstallationType() {
+        return installationType;
+    }
+
     public List<String> getLoggableRepositoryNames() {
         return loggableRepositoryNames;
     }
@@ -72,10 +82,15 @@ public class InstallationEvent {
         return Objects.equals("created", action);
     }
 
+    public boolean isAllRepositories() {
+        return !Objects.equals("selected", installationType);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(getAction(),
                 getAccountName(),
+                getInstallationType(),
                 getLoggableRepositoryNames());
     }
 
@@ -88,6 +103,7 @@ public class InstallationEvent {
 
             result = Objects.equals(compare.getAction(), getAction())
                     && Objects.equals(compare.getAccountName(), getAccountName())
+                    && Objects.equals(compare.getInstallationType(), getInstallationType())
                     && Objects.equals(compare.getLoggableRepositoryNames(), getLoggableRepositoryNames());
         }
 
@@ -99,6 +115,7 @@ public class InstallationEvent {
         return MoreObjects.toStringHelper(getClass()).omitNullValues()
                 .add("action", getAction())
                 .add("accountName", getAccountName())
+                .add("installationType", getInstallationType())
                 .add("loggableRepositoryNames", getLoggableRepositoryNames())
                 .toString();
     }
@@ -125,6 +142,7 @@ public class InstallationEvent {
 
             String action = event.get("action").getAsString();
             String owner = account.get("login").getAsString();
+            String installationType = installation.get("repository_selection").getAsString();
 
             List<String> loggableRepositoryNames = new ArrayList<>();
 
@@ -136,7 +154,7 @@ public class InstallationEvent {
                 }
             }
 
-            return new InstallationEvent(action, owner, loggableRepositoryNames);
+            return new InstallationEvent(action, owner, installationType, loggableRepositoryNames);
         }
 
         private String getLoggableName(String owner, JsonObject repository) {
