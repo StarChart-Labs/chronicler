@@ -28,6 +28,7 @@ import org.starchartlabs.alloy.core.Suppliers;
 import org.starchartlabs.calamari.core.webhook.WebhookVerifier;
 import org.starchartlabs.chronicler.events.GitHubPullRequestEvent;
 import org.starchartlabs.machete.ssm.parameter.SecuredParameter;
+import org.starchartlabs.machete.ssm.parameter.StringParameter;
 import org.starchartlabs.majortom.event.model.Notification;
 import org.starchartlabs.majortom.event.model.NotificationLevel;
 
@@ -56,11 +57,14 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
     private static final String PARAMETER_STORE_SECRET_KEY = "GITHUB_WEBHOOK_SECRET_SSM";
 
+    private static final String PARAMETER_STORE_NOTIFICATION_SSN_KEY = "NOTIFICATION_SNS_SSM";
+
     private static final String SNS_TOPIC_ARN = System.getenv("SNS_TOPIC_ARN");
 
     private static final String METRIC_NAMESPACE = System.getenv("METRIC_NAMESPACE");
 
-    private static final String NOTIFICATION_TOPIC_ARN = System.getenv("NOTIFICATION_SNS_ARN");
+    private static final Supplier<String> NOTIFICATION_TOPIC_ARN = Suppliers.memoizeWithExpiration(
+            StringParameter.fromEnv(PARAMETER_STORE_NOTIFICATION_SSN_KEY), 10, TimeUnit.MINUTES);
 
     private static final AmazonSNS SNS_CLIENT = AmazonSNSClientBuilder.defaultClient();
 
@@ -202,7 +206,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
             PublishRequest snsRequest = new PublishRequest()
                     .withSubject(Notification.SUBJECT)
-                    .withTopicArn(NOTIFICATION_TOPIC_ARN)
+                    .withTopicArn(NOTIFICATION_TOPIC_ARN.get())
                     .withMessage(notification.toJson());
 
             SNS_CLIENT.publish(snsRequest);
