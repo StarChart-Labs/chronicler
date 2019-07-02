@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add notifications to StarChart-Labs channels for system status
+- Updated metrics stored in AWS for usage data/feedback
 
 ## [0.4.0]
 ### Added
