@@ -17,7 +17,6 @@ package org.starchartlabs.chronicler.webhook.handler;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,9 @@ public class WebhookEventConverter {
     /** Logger reference to output information to the application log files */
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Consumer<Integer> installationRecorder;
+    private final IInstallationRecorder installationRecorder;
 
-    public WebhookEventConverter(Consumer<Integer> installationRecorder) {
+    public WebhookEventConverter(IInstallationRecorder installationRecorder) {
         this.installationRecorder = Objects.requireNonNull(installationRecorder);
     }
 
@@ -81,7 +80,14 @@ public class WebhookEventConverter {
             }
 
             if (event.isInstallation()) {
-                installationRecorder.accept(event.getLoggableRepositoryNames().size());
+                if (event.isAllRepositories()) {
+                    installationRecorder.installedOnAll(event.getAccountName());
+                } else {
+                    installationRecorder.partialInstallation(event.getAccountName(),
+                            event.getLoggableRepositoryNames().size());
+                }
+            } else {
+                installationRecorder.uninstallation(event.getAccountName());
             }
         } else if (InstallationRepositoriesEvent.isCompatibleWithEventType(eventType)) {
             InstallationRepositoriesEvent event = InstallationRepositoriesEvent.fromJson(body);
@@ -94,7 +100,11 @@ public class WebhookEventConverter {
             }
 
             if (event.isInstallation()) {
-                installationRecorder.accept(event.getLoggableRepositoryNames().size());
+                installationRecorder.partialInstallation(event.getAccountName(),
+                        event.getLoggableRepositoryNames().size());
+            } else {
+                installationRecorder.partialUninstallation(event.getAccountName(),
+                        event.getLoggableRepositoryNames().size());
             }
         } else if (MarketplaceEvent.isCompatibleWithEventType(eventType)) {
             MarketplaceEvent event = MarketplaceEvent.fromJson(body);
