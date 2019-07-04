@@ -10,15 +10,52 @@
  */
 package org.starchartlabs.chronicler.webhook.handler;
 
-//TODO romeara doc
+/**
+ * Represents a handler which responds to changes in installation state for a GitHub App
+ *
+ * @author romeara
+ * @since 0.5.0
+ */
 public interface IInstallationRecorder {
 
+    /**
+     * Records a net-new installation of the App
+     *
+     * @param login
+     *            The name of the user or organization installing the App
+     * @since 0.5.0
+     */
     void installedOnAll(String login);
 
+    /**
+     * Records addition of repositories to an installation of the App
+     *
+     * @param login
+     *            The name of the user or organization installing the App on select repositories
+     * @param repositoryCount
+     *            The number of repositories added
+     * @since 0.5.0
+     */
     void partialInstallation(String login, int repositoryCount);
 
+    /**
+     * Records removal of repositories from an installation of the App
+     *
+     * @param login
+     *            The name of the user or organization un-installing the App for select repositories
+     * @param repositoryCount
+     *            The number of repositories removed
+     * @since 0.5.0
+     */
     void partialUninstallation(String login, int repositoryCount);
 
+    /**
+     * Records a full un-installation of a GitHub App
+     *
+     * @param login
+     *            The name of the user or organization un-installing the App
+     * @since 0.5.0
+     */
     void uninstallation(String login);
 
 }
