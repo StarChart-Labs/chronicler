@@ -109,6 +109,11 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             .map(GitHubPullRequestEvent::toJson)
             .map(event -> toSnsRequest(GitHubPullRequestEvent.SUBJECT, event))
             .ifPresent(SNS_CLIENT::publish);
+
+            // Record if an actionable pull request event we received
+            if (snsEvent.isPresent()) {
+                recordPullRequest();
+            }
         } else {
             logger.warn("Unverified POST received: {}", input);
         }
@@ -121,6 +126,26 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
                 .withSubject(subject)
                 .withTopicArn(SNS_TOPIC_ARN)
                 .withMessage(eventBody);
+    }
+
+    private void recordPullRequest() {
+        logger.info("Recording pull request use to AWS namespace {}", METRIC_NAMESPACE);
+
+        Dimension dimension = new Dimension()
+                .withName("PULL REQUESTS")
+                .withValue("USES");
+
+        MetricDatum datum = new MetricDatum()
+                .withMetricName("PULL REQUESTS")
+                .withUnit(StandardUnit.Count)
+                .withValue(Integer.valueOf(1).doubleValue())
+                .withDimensions(dimension);
+
+        PutMetricDataRequest request = new PutMetricDataRequest()
+                .withNamespace(METRIC_NAMESPACE)
+                .withMetricData(datum);
+
+        CLOUDWATCH_CLIENT.putMetricData(request);
     }
 
     private static Supplier<String> getWebhookSecretSupplier() {

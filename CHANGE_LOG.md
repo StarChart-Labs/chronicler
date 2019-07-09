@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Add notifications to StarChart-Labs channels for system status
 - Updated metrics stored in AWS for usage data/feedback
+- (GH-118) Added metrics for number of pull requests serviced
 
 ## [0.4.0]
 ### Added
