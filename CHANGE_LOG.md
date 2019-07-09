@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated metrics stored in AWS for usage data/feedback
 - (GH-118) Added metrics for number of pull requests serviced
 
+### Changed
+- Updated jackson-databind to 2.9.9 to address security vulnerabilities
+
 ## [0.4.0]
 ### Added
 - Added privacy-policy and terms HTML pages
