@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 - (GH-125) Update install button to send users to marketplace page
+- Updated AWS and jackson dependencies to latest bugfix versions
+- Updated test frameworks to latest bugfix versions
 
 ## [0.5.0]
 ### Added
