@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [0.5.1]
 ### Changed
 - (GH-125) Update install button to send users to marketplace page
 - Updated AWS and jackson dependencies to latest bugfix versions
