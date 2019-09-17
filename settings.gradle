@@ -1,3 +1,5 @@
+rootProject.name = 'chronicler'
+
 include 'events'
 include 'github-model'
 include 'webhook-handler'
