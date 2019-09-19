@@ -3,9 +3,7 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'com.netflix.nebula:nebula-dependency-recommender:4.2.0'
-        classpath 'org.starchartlabs.flare:flare-operations-plugins:2.0.0'
-        classpath 'org.starchartlabs.flare:flare-publishing-plugins:1.0.0'
+        classpath 'org.starchartlabs.flare:flare-plugins:0.2.1'
     }
 }
 
@@ -13,13 +11,10 @@ apply plugin: 'org.starchartlabs.flare.merge-coverage-reports'
 
 allprojects{
     apply plugin: 'eclipse'
-    apply plugin: 'nebula.dependency-recommender'
-    apply plugin: 'org.starchartlabs.flare.dependency-reporting'
+    apply plugin: 'org.starchartlabs.flare.dependency-constraints'
 
-    dependencyRecommendations {
-        strategy OverrideTransitives
-        
-        propertiesFile file: file("${rootDir}/dependencies.properties")
+    dependencyConstraints {
+        file file("${rootDir}/dependencies.properties")
     }
 
     // Always download sources, to allow debugging
@@ -40,7 +35,7 @@ subprojects{
     apply plugin: 'checkstyle'
     apply plugin: 'jacoco'
     apply plugin: 'maven'
-    apply plugin: 'org.starchartlabs.flare.increase-test-logging'
+    apply plugin: 'org.starchartlabs.flare.increased-test-logging'
     apply plugin: 'org.starchartlabs.flare.source-jars'
 
     checkstyle {
