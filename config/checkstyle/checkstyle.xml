@@ -15,6 +15,12 @@
         <property name="eachLine" value="true"/>
     </module>
     
+    <!-- Checks for long lines - Long lines are hard to read in printouts or if developers have limited screen space for the source code -->
+    <module name="LineLength">
+        <property name="max" value="250"/>
+        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    </module>
+    
     <module name="TreeWalker">
     	<!-- Checks that file name = outer class name -->
     	<module name="OuterTypeFilename"/>
@@ -31,11 +37,6 @@
             <property name="allowEscapesForControlCharacters" value="true"/>
             <property name="allowByTailComment" value="true"/>
             <property name="allowNonPrintableEscapes" value="true"/>
-        </module>
-        <!-- Checks for long lines - Long lines are hard to read in printouts or if developers have limited screen space for the source code -->
-        <module name="LineLength">
-            <property name="max" value="250"/>
-            <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
         </module>
         <!-- Ensures only one top-level class is defined per file, which aids in clarity when navigating a project's APIs -->
         <module name="OneTopLevelClass"/>
