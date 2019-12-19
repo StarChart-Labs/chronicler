@@ -1,6 +1,6 @@
 # Chronicler
 
-[![Travis CI](https://img.shields.io/travis/com/StarChart-Labs/chronicler.svg?branch=master)](https://travis-ci.com/StarChart-Labs/chronicler) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master) [![Changelog validated by Chronicler](https://chronicler.starchartlabs.org/images/changelog-chronicler-success.png)](https://chronicler.starchartlabs.org/)
+![GitHub Actions](https://github.com/StarChart-Labs/chronicler/workflows/Java%20CI/badge.svg?branch=master) [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/StarChart-Labs/chronicler/branches/master) [![Changelog validated by Chronicler](https://chronicler.starchartlabs.org/images/changelog-chronicler-success.png)](https://chronicler.starchartlabs.org/)
 
 GitHub integration which validates whether release notes are updated when production code is changed
 
