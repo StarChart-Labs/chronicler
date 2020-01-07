@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Update AWS, Jackson, Starchart, logging, and test dependencies to latest bugfix release
 
 ## [0.5.1]
 ### Changed
