@@ -98,14 +98,6 @@ public class WebhookEventConverter {
             if (event.getLoggableRepositoryNames().isEmpty()) {
                 logger.info("GitHub Account Install: {}: {}", event.getAction(), event.getAccountName());
             }
-
-            if (event.isInstallation()) {
-                installationRecorder.partialInstallation(event.getAccountName(),
-                        event.getLoggableRepositoryNames().size());
-            } else {
-                installationRecorder.partialUninstallation(event.getAccountName(),
-                        event.getLoggableRepositoryNames().size());
-            }
         } else if (MarketplaceEvent.isCompatibleWithEventType(eventType)) {
             MarketplaceEvent event = MarketplaceEvent.fromJson(body);
 
