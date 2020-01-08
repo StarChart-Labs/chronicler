@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 - Update AWS, Jackson, Starchart, logging, and test dependencies to latest bugfix release
+- GH-136 Reduce logging for installation modifications
 
 ## [0.5.1]
 ### Changed
