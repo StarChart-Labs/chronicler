@@ -18,3 +18,10 @@ jobs:
     - name: Upload to CoPilot
       if: github.event_name == 'push' || github.event_name == 'pull_request'
       run: bash <(curl -s https://copilot.blackducksoftware.com/ci/githubactions/scripts/upload)
+  validation:
+    name: "Validate Gradle Wrapper"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: gradle/wrapper-validation-action@v1
+      
