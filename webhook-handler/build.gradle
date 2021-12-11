@@ -1,22 +1,22 @@
 //Dependency versions managed in $rootDir/dependencies.properties
 dependencies {
-    compile project(':events')
-    compile project(':github-model')
+    api project(':events')
+    api project(':github-model')
     
-    compile 'com.amazonaws:aws-java-sdk-cloudwatch'
-    compile 'com.amazonaws:aws-java-sdk-sns'
-    compile 'com.amazonaws:aws-java-sdk-ssm'
-    compile 'com.amazonaws:aws-lambda-java-core'
-    compile 'com.amazonaws:aws-lambda-java-events'
-    compile 'com.google.code.findbugs:jsr305'
-    compile 'org.slf4j:slf4j-api'
-    compile 'org.starchartlabs.calamari:calamari-core'
-    compile 'org.starchartlabs.machete:machete-ssm'
-    compile 'org.starchartlabs.majortom:event-model'
+    api 'com.amazonaws:aws-java-sdk-cloudwatch'
+    api 'com.amazonaws:aws-java-sdk-sns'
+    api 'com.amazonaws:aws-java-sdk-ssm'
+    api 'com.amazonaws:aws-lambda-java-core'
+    api 'com.amazonaws:aws-lambda-java-events'
+    api 'com.google.code.findbugs:jsr305'
+    api 'org.slf4j:slf4j-api'
+    api 'org.starchartlabs.calamari:calamari-core'
+    api 'org.starchartlabs.machete:machete-ssm'
+    api 'org.starchartlabs.majortom:event-model'
     
-    runtime 'com.amazonaws:aws-lambda-java-log4j2'
-    runtime 'org.apache.logging.log4j:log4j-core'
-    runtime 'org.apache.logging.log4j:log4j-slf4j-impl'
+    implementation 'com.amazonaws:aws-lambda-java-log4j2'
+    implementation 'org.apache.logging.log4j:log4j-core'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
 }
 
 // Task for building the zip file for upload
@@ -34,7 +34,7 @@ task buildZip(type: Zip) {
     from compileJava
     from processResources
     into('lib') {
-        from configurations.runtime
+        from configurations.runtimeClasspath
     }
 }
 
