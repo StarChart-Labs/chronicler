@@ -34,7 +34,6 @@ subprojects{
     apply plugin: 'java-library'
     apply plugin: 'checkstyle'
     apply plugin: 'jacoco'
-    apply plugin: 'maven'
     apply plugin: 'org.starchartlabs.flare.increased-test-logging'
     apply plugin: 'org.starchartlabs.flare.source-jars'
 
