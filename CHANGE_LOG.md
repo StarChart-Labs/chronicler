@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Updated serverless to 2.54.0
+- Replaced serverless pseudo-parameters plug-in with native variable use
 
 ## [0.5.2]
 ### Changed
