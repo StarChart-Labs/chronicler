@@ -69,7 +69,7 @@ public class StatusHandler {
         HttpUrl url = HttpUrl.get(statusesUrl);
 
         Request request = Requests.newRequest()
-                .post(RequestBody.create(MediaType.get(MediaTypes.APP_PREVIEW), statusRequest.toJson()))
+                .post(RequestBody.create(statusRequest.toJson(), MediaType.get(MediaTypes.APP_PREVIEW)))
                 .header("Authorization", authorizationHeader.get())
                 .header("Accept", MediaTypes.APP_PREVIEW)
                 .url(url)

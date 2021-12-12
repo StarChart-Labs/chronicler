@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Updated serverless to 2.54.0
 - Replaced serverless pseudo-parameters plug-in with native variable use
+- Updated com.amazonaws:aws-java-sdk-cloudwatch from 1.11.699 to 1.12.128
+- Updated com.amazonaws:aws-java-sdk-sns from 1.11.699 to 1.12.128
+- Updated com.amazonaws:aws-java-sdk-ssm from 1.11.699 to 1.12.128
+- Updated com.amazonaws:aws-lambda-java-core from 1.2.0 to 1.2.1
+- Updated com.amazonaws:aws-lambda-java-events from 2.2.7 to 3.11.0
+- Updated com.amazonaws:aws-lambda-java-log4j2 from 1.1.0 to 1.3.0
+- Updated com.fasterxml.jackson.core:jackson-databind from 2.10.1 to 2.13.0
+- Updated com.google.code.gson:gson from 2.8.6 to 2.8.9
+- Updated com.squareup.okhttp3:okhttp from 3.14.4 to 4.9.3
+- Updated org.apache.logging.log4j:log4j-core from 2.13.0 to 2.15.0
+- Updated org.apache.logging.log4j:log4j-slf4j-impl from 2.13.0 to 2.15.0
+- Updated org.starchartlabs.alloy:alloy-core from 0.5.0 to 1.0.2
+- Updated org.starchartlabs.calamari:calamari-core from 0.4.1 to 1.0.2
+- Updated org.starchartlabs.machete:machete-sns from 0.2.2 to 1.0.2
+- Updated org.starchartlabs.machete:machete-ssm from 0.2.2 to 1.0.2
+- Updated org.starchartlabs.majortom:event-model from 0.2.2 to 1.0.1
+- Removed unused org.mockito:mockito-core dependency
+- Updated org.slf4j:slf4j-api from 1.7.29 to 1.7.32
+- Updated org.slf4j:slf4j-simple from 1.7.29 to 1.7.32
+- Updated org.testng:testng from 6.14.3 to 7.4.0
+- Updated org.yaml:snakeyaml from 1.25 to 1.29
 
 ## [0.5.2]
 ### Changed
