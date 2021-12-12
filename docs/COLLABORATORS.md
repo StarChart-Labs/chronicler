@@ -24,6 +24,10 @@ Deployment of Chronicler is done in the context of a "stage". A "stage" is somet
 
 To deploy Chronicler for a given stage, the following manual setup is required once:
 
+ - First, it is necessary to install `serverless` and then the plug-ins needed for major-tom
+    - [Install serverless](https://www.serverless.com/framework/docs/providers/aws/guide/installation/)
+        - This includes configuring serverless keys for AWS
+    - Install the below plugins via [serverless plugin install](https://www.serverless.com/framework/docs/providers/aws/cli-reference/plugin-install/)
  - Create a GitHub App configuration for the stage
  	- Using the description in [the GitHub App documentation](./GITHUB_APP_SETTINGS.md), setup a GitHub App, replacing the title and URLs to match the stage being setup
  - Configure a Webhook Secret and download the secret key
