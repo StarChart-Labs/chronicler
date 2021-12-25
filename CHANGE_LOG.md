@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Updated com.amazonaws:aws-lambda-java-log4j2 from 1.3.0 to 1.5.0
+- Updated org.apache.logging.log4j:log4j-core from 2.15.0 to 2.17.0
+- Updated org.apache.logging.log4j:log4j-slf4j-impl from 2.15.0 to 2.17.0
+- Updated org.starchartlabs.majortom:event-model from 1.0.1 to 1.0.3
 
 ## [0.5.3]
 ### Changed
